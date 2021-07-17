@@ -10,7 +10,8 @@ knitr::opts_chunk$set(echo = FALSE, eval = TRUE, warning = FALSE, message = FALS
 ```
 
 ```{r libraries}
-library(tidyverse)
+#included all the necessary libraries
+library(tidyverse) 
 library(moderndive)
 library(skimr)
 library(kableExtra)
@@ -24,8 +25,17 @@ library(ggfortify)
 
 
 ```{r data,echo=FALSE,eval=TRUE}
-household<-read_csv("/home/suraj/Desktop/stats_folder/group_04.csv")
-head(household)
+data<-read_csv("/home/suraj/Desktop/stats_folder/group_04.csv")#loaded the dataset
+data$Household.Head.Sex <- as.factor(data$Household.Head.Sex) # modified sex variable to factor
+data$Type.of.Household <- as.factor(data$Type.of.Household)# modified household var to factor
+
+data$log.Income <- log(data$Total.Household.Income)#scaled down household income by taking log
+data$log.food.ex <- log(data$Total.Food.Expenditure)#scaled down household income by taking log
+data$sqrt.area <- sqrt(data$House.Floor.Area ) # scaled down house area by taking squareroot 
+
+data <- data %>%
+  select(-Region,-Total.Household.Income,-Total.Food.Expenditure,-House.Floor.Area)# remove unneccesary coloumns
+
 ```
 
 # Introduction {#sec:Intro}
@@ -34,6 +44,16 @@ head(household)
 
 # Formal Data Analysis {#sec:FDA}
 
+we fit a poisson model as our response is a count variable. We have excluded Region as  a covariate because there was only one factor. 
+
+```{r model1}
+model1 <- glm(Total.Number.of.Family.members ~ log.Income +log.food.ex+Household.Head.Sex + Household.Head.Age + Type.of.Household +sqrt.area+House.Age+Number.of.bedrooms + Electricity  ,data = data,family = "poisson")  # fitted the poisson model using glm
+get_regression_table(model1) %>%  # get regression tables using kable 
+kable(caption = '\\label{tab:mod1} Estimates of the parameters from the fitted linear
+model.') %>%
+kable_styling(latex_options = 'HOLD_position') 
+
+```
 
 
 
