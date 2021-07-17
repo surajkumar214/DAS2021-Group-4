@@ -2,7 +2,7 @@
 title: "Group_04"
 author: "Suraj Kumar"
 date: "17/07/2021"
-output: html_document
+output: github_document 
 ---
 
 ```{r setup, include=FALSE}
