@@ -6,7 +6,26 @@ output: github_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE, eval = TRUE, warning = FALSE, message = FALSE, comment = NA)
+```
+
+```{r libraries}
+library(tidyverse)
+library(moderndive)
+library(skimr)
+library(kableExtra)
+library(gridExtra)
+library(GGally)
+library(infer)
+library(broom)
+library(ggfortify)
+```
+
+
+
+```{r data,echo=FALSE,eval=TRUE}
+household<-read_csv("/home/suraj/Desktop/stats_folder/group_04.csv")
+head(household)
 ```
 
 # Introduction {#sec:Intro}
@@ -14,6 +33,10 @@ knitr::opts_chunk$set(echo = TRUE)
 # Exploratory Data Analysis {#sec:EDA}
 
 # Formal Data Analysis {#sec:FDA}
+
+
+
+
 
 # Conclusions {#sec:Conc}
 
