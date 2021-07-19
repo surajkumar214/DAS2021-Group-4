@@ -35,6 +35,7 @@ data$Type.of.Household <- as.factor(data$Type.of.Household)# modified household 
 data <- data %>%
   select(-Region)# remove unnecessary coloumn
 
+ggpairs(data)
 ```
 
 # Introduction {#sec:Intro}
@@ -46,7 +47,7 @@ data <- data %>%
 we fit a poisson model as our response is a count variable. We have excluded Region as  a covariate because there was only one factor. 
 
 ```{r model1}
-model1 <- glm(Total.Number.of.Family.members ~ log(Total.Household.Income)+log(Total.Food.Expenditure ) + Household.Head.Age + Type.of.Household +sqrt(House.Floor.Area)+House.Age+Number.of.bedrooms + Electricity  ,data = data,family = "poisson")  # fitted the poisson model using glm
+model1 <- glm(Total.Number.of.Family.members ~ log(Total.Household.Income) *Household.Head.Age+log(Total.Food.Expenditure )  + Type.of.Household +sqrt(House.Floor.Area)+House.Age+Number.of.bedrooms + Electricity  ,data = data,family = "poisson")  # fitted the poisson model using glm
 model1 %>% # summaryof the model
   summary()
 
@@ -55,6 +56,29 @@ confint(model1) %>% #confidence interval of the model
 
 plot_model(model1, show.values = TRUE, transform = NULL,
            title = "Log-Odds (Male instructor)", show.p = FALSE)
+
+resp <- resid(model1, type = "pearson")
+resd <- resid(model1, type = "deviance")
+p1<- ggplot(model1, aes(sample = resp)) + geom_point(stat = "qq", color = "#7fc97f") +
+  ylab("Pearson residuals")
+p2<- ggplot(model1, aes(sample = resd)) + geom_point(stat = "qq", color = "#7fc97f") +
+  ylab("Deviance residuals")
+p3<- ggplot(model1, aes(x = predict(model1, type="link"), y =resd))+
+  geom_point(col = "#7fc97f") +
+  ylab("Deviance residuals") + xlab("Linear predictor")
+grid.arrange(p1, p2, p3, nrow = 1)
+#check overdispersion
+
+
+ggplot(model1, aes(x=log(fitted(model1)), y=log((data$Total.Number.of.Family.members-fitted(model1))^2)))+
+  geom_point(col="#f46d43") +
+  geom_abline(slope=1, intercept=0, col="#a6d96a", size=1) +
+  ylab(expression((y-hat(mu))^2)) + xlab(expression(hat(mu)))
+
+
+
+library(MASS)
+model2 <- glm.nb(Total.Number.of.Family.members ~ log(Total.Household.Income) *Household.Head.Age+log(Total.Food.Expenditure )  + Type.of.Household +sqrt(House.Floor.Area)+House.Age+Number.of.bedrooms + Electricity  ,data = data) 
 
 
 
