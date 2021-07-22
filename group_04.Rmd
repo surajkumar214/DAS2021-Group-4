@@ -11,6 +11,7 @@ knitr::opts_chunk$set(echo = FALSE, eval = TRUE, warning = FALSE, message = FALS
 
 ```{r libraries}
 #included all the necessary libraries
+
 library(tidyverse) 
 library(moderndive)
 library(skimr)
@@ -22,40 +23,124 @@ library(broom)
 library(ggfortify)
 library(jtools)
 library(sjPlot)
+library(AER)
+library(car)
 ```
 
 
 
 ```{r data,echo=FALSE,eval=TRUE}
-data<-read_csv("/home/suraj/Desktop/stats_folder/group_04.csv")#loaded the dataset
-data$Household.Head.Sex <- as.factor(data$Household.Head.Sex) # modified sex variable to factor
-data$Type.of.Household <- as.factor(data$Type.of.Household)# modified household var to factor
+dataset4<-read.csv("/home/suraj/Desktop/stats_folder/group_04.csv")
+dataset4<-dataset4%>%
+  select(-Region)
+dataset4[sapply(dataset4,is.character)]<-lapply(dataset4[sapply(dataset4,is.character)],as.factor)
 
+dataset4$Electricity <-as.factor(dataset4$Electricity)
+dataset4$Number.of.bedrooms <-as.factor(dataset4$Number.of.bedrooms)
 
-data <- data %>%
-  select(-Region)# remove unnecessary coloumn
-
-ggpairs(data)
 ```
 
 # Introduction {#sec:Intro}
 
 # Exploratory Data Analysis {#sec:EDA}
+```{r exp}
+table(dataset4$Household.Head.Sex,dataset4$Type.of.Household)
+table(dataset4$Number.of.bedrooms,dataset4$Type.of.Household)
+table(dataset4$Electricity,dataset4$Type.of.Household)
+table(dataset4$Electricity,dataset4$Number.of.bedrooms)
+table(dataset4$Household.Head.Sex,dataset4$Electricity)
+```
 
 # Formal Data Analysis {#sec:FDA}
 
 we fit a poisson model as our response is a count variable. We have excluded Region as  a covariate because there was only one factor. 
 
 ```{r model1}
-model1 <- glm(Total.Number.of.Family.members ~ log(Total.Household.Income) *Household.Head.Age+log(Total.Food.Expenditure )  + Type.of.Household +sqrt(House.Floor.Area)+House.Age+Number.of.bedrooms + Electricity  ,data = data,family = "poisson")  # fitted the poisson model using glm
-model1 %>% # summaryof the model
-  summary()
 
-confint(model1) %>% #confidence interval of the model
-  kable()
+model1 <- glm(Total.Number.of.Family.members ~ 
+                Household.Head.Sex                                                   +
+                
+                Household.Head.Age   *Type.of.Household                              +
+                log(Total.Food.Expenditure ) * Type.of.Household                     +
+                log(Total.Household.Income) * Type.of.Household                      +
+                log(Total.Household.Income) * Electricity                            +
+                Type.of.Household  *Electricity                                      +
+                log(House.Floor.Area)                                                +
+                Number.of.bedrooms                                                   +
+                House.Age                                                           
+                                                 
+               ,data = dataset4,family = "poisson")  # fitted the poisson model using glm
 
-plot_model(model1, show.values = TRUE, transform = NULL,
-           title = "Log-Odds (Male instructor)", show.p = FALSE)
+
+resp <- resid(model1, type = "pearson")
+resd <- resid(model1, type = "deviance")
+p1<- ggplot(model1, aes(sample = resp)) + geom_point(stat = "qq", color = "#7fc97f") +
+  ylab("Pearson residuals")
+p2<- ggplot(model1, aes(sample = resd)) + geom_point(stat = "qq", color = "#7fc97f") +
+  ylab("Deviance residuals")
+p3<- ggplot(model1, aes(x = predict(model1, type="link"), y =resd))+
+  geom_point(col = "#7fc97f") +
+  ylab("Deviance residuals") + xlab("Linear predictor")
+grid.arrange(p1, p2, p3, nrow = 1)  
+
+
+```
+
+ 
+
+
+```{r}
+
+#check overdispersion
+
+c_d = cooks.distance(model1)
+which.max(c_d)
+i_n = influence(model1)$hat # calculate the influence of data points
+which.max(i_n)
+
+ggplot(model1, aes(x=log(fitted(model1)), y=log((dataset4$Total.Number.of.Family.members-fitted(model1))^2)))+
+  geom_point(col="#f46d43") +
+  geom_abline(slope=1, intercept=0, col="#a6d96a", size=1) +
+  ylab(expression((y-hat(mu))^2)) + xlab(expression(hat(mu)))
+
+c_d = cooks.distance(model1)
+which.max(c_d)
+i_n = influence(model1)$hat # calculate the influence of data points
+which.max(i_n)
+
+
+
+autoplot(model1, which = 1:4)
+
+pred <- predict(model1, type = "response")
+stand.resid <- rstandard(model = model1, type = "pearson") # Standardised Pearson residuals
+par(mfrow=c(1,2))
+plot(x = pred, y = stand.resid, xlab = "Predicted count", ylab = "Standardised Pearson residuals",
+main = "Regular likelihood", ylim = c(-5,5))
+abline(h = c(-3, -2, 0, 2, 3), lty = "dotted", col = "red")
+
+```
+
+```{r}
+dataset4 <- dataset4[-2033,]
+
+model1 <- glm(Total.Number.of.Family.members ~ 
+                Household.Head.Sex                                                   +
+                
+                Household.Head.Age   *Type.of.Household                              +
+                log(Total.Food.Expenditure ) * Type.of.Household                     +
+                log(Total.Household.Income) * Type.of.Household                      +
+                log(Total.Household.Income) * Electricity                            +
+                Type.of.Household  *Electricity                                      +
+                log(House.Floor.Area)                                                +
+                Number.of.bedrooms                                                   +
+                House.Age                                                           
+                                                 
+               ,data = dataset4,family = "poisson") 
+
+autoplot(model1,which = 1:4)
+
+
 
 resp <- resid(model1, type = "pearson")
 resd <- resid(model1, type = "deviance")
@@ -70,15 +155,64 @@ grid.arrange(p1, p2, p3, nrow = 1)
 #check overdispersion
 
 
-ggplot(model1, aes(x=log(fitted(model1)), y=log((data$Total.Number.of.Family.members-fitted(model1))^2)))+
-  geom_point(col="#f46d43") +
-  geom_abline(slope=1, intercept=0, col="#a6d96a", size=1) +
-  ylab(expression((y-hat(mu))^2)) + xlab(expression(hat(mu)))
+dispersiontest(model1, trafo = 1 ,alternative = c("less"))
+
+```
+
+```{r}
+drop1(model1,test="F")
+
+model2 <- glm(Total.Number.of.Family.members ~ 
+                Household.Head.Sex                                                   +
+                Household.Head.Age   *Type.of.Household                              +
+                log(Total.Food.Expenditure ) * Type.of.Household                     +
+                
+                log(Total.Household.Income) * Electricity                            +
+                Type.of.Household  *Electricity                                      +
+                log(House.Floor.Area)                                                +
+                House.Age                                                            +
+                Number.of.bedrooms                                  
+               ,data = dataset4,family = "poisson")  # fitted the poisson model using glm
+
+drop1(model2,test = "F")
 
 
 
-library(MASS)
-model2 <- glm.nb(Total.Number.of.Family.members ~ log(Total.Household.Income) *Household.Head.Age+log(Total.Food.Expenditure )  + Type.of.Household +sqrt(House.Floor.Area)+House.Age+Number.of.bedrooms + Electricity  ,data = data) 
+
+model3 <- glm(Total.Number.of.Family.members ~ 
+                Household.Head.Sex                                                   +
+                Household.Head.Age                                +
+                log(Total.Food.Expenditure ) * Type.of.Household                     +
+                
+                log(Total.Household.Income) * Electricity                            +
+                Type.of.Household  *Electricity                                      +
+                log(House.Floor.Area)                                                +
+                
+                House.Age                                                            +
+                Number.of.bedrooms                                  
+               ,data = dataset4,family = "poisson")  # fitted the poisson model using glm
+
+drop1(model3,test = "F")
+
+outlierTest(model3)
+
+
+resp <- resid(model3, type = "pearson")
+resd <- resid(model3, type = "deviance")
+p1<- ggplot(model3, aes(sample = resp)) + geom_point(stat = "qq", color = "#7fc97f") +
+  ylab("Pearson residuals")
+p2<- ggplot(model3, aes(sample = resd)) + geom_point(stat = "qq", color = "#7fc97f") +
+  ylab("Deviance residuals")
+p3<- ggplot(model3, aes(x = predict(model2, type="link"), y =resd))+
+  geom_point(col = "#7fc97f") +
+  ylab("Deviance residuals") + xlab("Linear predictor")
+
+grid.arrange(p1, p2, p3, nrow = 1)
+
+X2 <- sum(resid(model3, type = "pearson")^2)
+dp <- X2 / model3$df.res
+dp
+summary(model3, dispersion = dp)
 
 
 
@@ -90,3 +224,10 @@ model2 <- glm.nb(Total.Number.of.Family.members ~ log(Total.Household.Income) *H
 # Conclusions {#sec:Conc}
 
 # Extention {#sec:Ext}
+
+
+
+
+
+
+
