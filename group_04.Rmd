@@ -83,46 +83,22 @@ p3<- ggplot(model1, aes(x = predict(model1, type="link"), y =resd))+
   ylab("Deviance residuals") + xlab("Linear predictor")
 grid.arrange(p1, p2, p3, nrow = 1)  
 
+c_d = cooks.distance(model1)
+which.max(c_d)
+i_n = influence(model1)$hat # calculate the influence of data points
+which.max(i_n)
 
+outlierTest(model1)
+autoplot(model1,1:4)
 ```
 
  
 
 
-```{r}
 
-#check overdispersion
-
-c_d = cooks.distance(model1)
-which.max(c_d)
-i_n = influence(model1)$hat # calculate the influence of data points
-which.max(i_n)
-
-ggplot(model1, aes(x=log(fitted(model1)), y=log((dataset4$Total.Number.of.Family.members-fitted(model1))^2)))+
-  geom_point(col="#f46d43") +
-  geom_abline(slope=1, intercept=0, col="#a6d96a", size=1) +
-  ylab(expression((y-hat(mu))^2)) + xlab(expression(hat(mu)))
-
-c_d = cooks.distance(model1)
-which.max(c_d)
-i_n = influence(model1)$hat # calculate the influence of data points
-which.max(i_n)
-
-
-
-autoplot(model1, which = 1:4)
-
-pred <- predict(model1, type = "response")
-stand.resid <- rstandard(model = model1, type = "pearson") # Standardised Pearson residuals
-par(mfrow=c(1,2))
-plot(x = pred, y = stand.resid, xlab = "Predicted count", ylab = "Standardised Pearson residuals",
-main = "Regular likelihood", ylim = c(-5,5))
-abline(h = c(-3, -2, 0, 2, 3), lty = "dotted", col = "red")
-
-```
 
 ```{r}
-dataset4 <- dataset4[-2033,]
+dataset4 <- dataset4[c(-2033,-1521),]
 
 model1 <- glm(Total.Number.of.Family.members ~ 
                 Household.Head.Sex                                                   +
@@ -157,6 +133,21 @@ grid.arrange(p1, p2, p3, nrow = 1)
 
 dispersiontest(model1, trafo = 1 ,alternative = c("less"))
 
+#check overdispersion
+
+ggplot(model1, aes(x=log(fitted(model1)), y=log((dataset4$Total.Number.of.Family.members-fitted(model1))^2)))+
+  geom_point(col="#f46d43") +
+  geom_abline(slope=1, intercept=0, col="#a6d96a", size=1) +
+  ylab(expression((y-hat(mu))^2)) + xlab(expression(hat(mu)))
+pred <- predict(model1, type = "response")
+stand.resid <- rstandard(model = model1, type = "pearson") # Standardised Pearson residuals
+par(mfrow=c(1,2))
+plot(x = pred, y = stand.resid, xlab = "Predicted count", ylab = "Standardised Pearson residuals",
+main = "Regular likelihood", ylim = c(-5,5))
+abline(h = c(-3, -2, 0, 2, 3), lty = "dotted", col = "red")
+
+
+
 ```
 
 ```{r}
@@ -174,46 +165,62 @@ model2 <- glm(Total.Number.of.Family.members ~
                 Number.of.bedrooms                                  
                ,data = dataset4,family = "poisson")  # fitted the poisson model using glm
 
-drop1(model2,test = "F")
 
 
+outlierTest(model2)
+autoplot(model2, which = 1:2)
+```
 
+
+```{r}
+dataset4 <- dataset4[c(-262),]
 
 model3 <- glm(Total.Number.of.Family.members ~ 
                 Household.Head.Sex                                                   +
-                Household.Head.Age                                +
+                Household.Head.Age   *Type.of.Household                              +
                 log(Total.Food.Expenditure ) * Type.of.Household                     +
                 
                 log(Total.Household.Income) * Electricity                            +
                 Type.of.Household  *Electricity                                      +
                 log(House.Floor.Area)                                                +
-                
                 House.Age                                                            +
                 Number.of.bedrooms                                  
                ,data = dataset4,family = "poisson")  # fitted the poisson model using glm
 
 drop1(model3,test = "F")
 
-outlierTest(model3)
+model_fin  <- glm(Total.Number.of.Family.members ~ 
+                Household.Head.Sex                                                   +
+                Household.Head.Age                                                   +
+                log(Total.Food.Expenditure ) * Type.of.Household                     +
+                
+                log(Total.Household.Income) * Electricity                            +
+                Type.of.Household  *Electricity                                      +
+                log(House.Floor.Area)                                                +
+                House.Age                                                            +
+                Number.of.bedrooms                                  
+               ,data = dataset4,family = "poisson")  # fitted the poisson model using glm
 
-
-resp <- resid(model3, type = "pearson")
-resd <- resid(model3, type = "deviance")
-p1<- ggplot(model3, aes(sample = resp)) + geom_point(stat = "qq", color = "#7fc97f") +
+resp <- resid(model_fin, type = "pearson")
+resd <- resid(model_fin, type = "deviance")
+p1<- ggplot(model_fin, aes(sample = resp)) + geom_point(stat = "qq", color = "#7fc97f") +
   ylab("Pearson residuals")
-p2<- ggplot(model3, aes(sample = resd)) + geom_point(stat = "qq", color = "#7fc97f") +
+p2<- ggplot(model_fin, aes(sample = resd)) + geom_point(stat = "qq", color = "#7fc97f") +
   ylab("Deviance residuals")
-p3<- ggplot(model3, aes(x = predict(model2, type="link"), y =resd))+
+p3<- ggplot(model_fin, aes(x = predict(model_fin, type="link"), y =resd))+
   geom_point(col = "#7fc97f") +
   ylab("Deviance residuals") + xlab("Linear predictor")
 
 grid.arrange(p1, p2, p3, nrow = 1)
 
-X2 <- sum(resid(model3, type = "pearson")^2)
-dp <- X2 / model3$df.res
-dp
-summary(model3, dispersion = dp)
+autoplot(model_fin, which = 1:4)
 
+drop1(model_fin, test = "F")
+
+X2 <- sum(resid(model_fin, type = "pearson")^2)
+dp <- X2 / model_fin$df.res
+dp
+summary(model_fin, dispersion = dp)
 
 
 ```
