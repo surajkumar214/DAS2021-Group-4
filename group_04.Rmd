@@ -176,7 +176,8 @@ kable_styling(latex_options = 'HOLD_position')
 
 drop
 ```
-In the table \ref{tab:drop1}, 	 and 
+In the table \ref{tab:drop1}, Type.of.Household:log(Total.Food.Expenditure)	 and Type.of.Household:log(Total.Household.Income) can be eliminated without significantly hurting the model's Deviance. So, we firstly eliminate variable Type.of.Household:log(Total.Household.Income) and check for F test again:-
+ 
 
 
 ```{r mod2}
@@ -192,45 +193,24 @@ model2 <- glm(Total.Number.of.Family.members ~
                 Number.of.bedrooms                                  
                ,data = dataset4,family = "poisson")  # fitted the poisson model using glm
 
-drop1(model2,test = "F")
+drop <- model2 %>%
+drop1(test="F") %>%
+  kable(caption = '\\label{tab:drop1} Performing F test on the inital model') %>%
+kable_styling(latex_options = 'HOLD_position')
+
+drop
+
+```
+The F test say our model is perfectly fine. We can't further remove any variable. So, this is our final model. 
 
 
 
 
-model3 <- glm(Total.Number.of.Family.members ~ 
-                Household.Head.Sex                                                   +
-                Household.Head.Age                                +
-                log(Total.Food.Expenditure ) * Type.of.Household                     +
-                
-                log(Total.Household.Income) * Electricity                            +
-                Type.of.Household  *Electricity                                      +
-                log(House.Floor.Area)                                                +
-                
-                House.Age                                                            +
-                Number.of.bedrooms                                  
-               ,data = dataset4,family = "poisson")  # fitted the poisson model using glm
-
-drop1(model3,test = "F")
-
-outlierTest(model3)
-
-
-resp <- resid(model3, type = "pearson")
-resd <- resid(model3, type = "deviance")
-p1<- ggplot(model3, aes(sample = resp)) + geom_point(stat = "qq", color = "#7fc97f") +
-  ylab("Pearson residuals")
-p2<- ggplot(model3, aes(sample = resd)) + geom_point(stat = "qq", color = "#7fc97f") +
-  ylab("Deviance residuals")
-p3<- ggplot(model3, aes(x = predict(model2, type="link"), y =resd))+
-  geom_point(col = "#7fc97f") +
-  ylab("Deviance residuals") + xlab("Linear predictor")
-
-grid.arrange(p1, p2, p3, nrow = 1)
-
-X2 <- sum(resid(model3, type = "pearson")^2)
-dp <- X2 / model3$df.res
+```{r mod3}
+X2 <- sum(resid(model2, type = "pearson")^2)
+dp <- X2 / model2$df.res
 dp
-summary(model3, dispersion = dp)
+summary(model2, dispersion = dp)
 
 
 
