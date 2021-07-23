@@ -164,13 +164,22 @@ dispersiontest( trafo = 1 ,alternative = c("less"))
 dis
 ```
 The negative value of aplha (`r round(dis$estimate,2)`) is significant because the p_value for the hypothesis test is (`r round(dis$p.value,2)`). Figure \ref{fig:disp} displays the underdispersed variance. 
-Therefore, we can't rely on Wald's test for inference. 
+Therefore, we can't rely on Wald's test for inference in the possion model.  Rather, we perform analysis with quasi-poisson model that adjusts variance for both overdispersion and underdispersion. We resort to F test and do step by step variable removal to choose the best fitting model.  
 
 
 
-```{r}
-drop1(model1,test="F")
+```{r drop1}
+drop <- model1 %>%
+drop1(test="F") %>%
+  kable(caption = '\\label{tab:drop1} Performing F test on the inital model') %>%
+kable_styling(latex_options = 'HOLD_position')
 
+drop
+```
+In the table \ref{tab:drop1}, 	 and 
+
+
+```{r mod2}
 model2 <- glm(Total.Number.of.Family.members ~ 
                 Household.Head.Sex                                                   +
                 Household.Head.Age   *Type.of.Household                              +
