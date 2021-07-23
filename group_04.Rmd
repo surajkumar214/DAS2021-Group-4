@@ -6,6 +6,7 @@ output:
    github_document:
    number_sections: yes 
 
+always_allow_html: true
            
 fig_caption: yes
 ---
@@ -41,7 +42,7 @@ dataset4<-dataset4%>%
 dataset4[sapply(dataset4,is.character)]<-lapply(dataset4[sapply(dataset4,is.character)],as.factor)
 
 dataset4$Electricity <-as.factor(dataset4$Electricity)
-dataset4$Number.of.bedrooms <-as.factor(dataset4$Number.of.bedrooms)
+#dataset4$Number.of.bedrooms <-as.factor(dataset4$Number.of.bedrooms)
 
 ```
 
@@ -65,7 +66,7 @@ We fit a Poisson model as our response is a count variable. We have excluded Reg
 model1 <- glm(Total.Number.of.Family.members ~ 
                 Household.Head.Sex                                                   +
                 
-                Household.Head.Age   *Type.of.Household                              +
+                log(Household.Head.Age)*   Type.of.Household                        +
                 log(Total.Food.Expenditure ) * Type.of.Household                     +
                 log(Total.Household.Income) * Type.of.Household                      +
                 log(Total.Household.Income) * Electricity                            +
@@ -77,6 +78,8 @@ model1 <- glm(Total.Number.of.Family.members ~
                ,data = dataset4,family = "poisson")  # fitted the poisson model using glm
 model1 %>%
   summ()
+
+ 
   
 ```
 We can observe a lot of insignificant variables in our initial model. However, before proceeding to the wald test to check the significance of each variable, we, firstly, looked for any potential outliers and checked whether assumptions are holding.  We can notice that the deviance of the model(`r round(deviance(model1),2)`) is much less than chi-square(`r round(qchisq(df = model1$df.residual,p = 0.95),2)`). There could be a case of underdispersion wherein the estimated variance is less than the expected mean. We can interpret the coefficients in such a situation but can't rely on standard error as they are deflated. 
@@ -104,7 +107,7 @@ We have plotted Normal_qq_plot for Pearson and deviance residuals. The purpose o
 
 
 
-```{r,outlier}
+```{r outlier}
 
  model1 %>%
   outlierTest() 
@@ -112,14 +115,14 @@ We have plotted Normal_qq_plot for Pearson and deviance residuals. The purpose o
 ```
 We have identified the outlier point having id 2033. However, addressing outlier is totally subjective. We try to fit the model again removing this outlier and check for the assumptions. 
 
-```{r}
+```{r mod1}
 dataset4 <- dataset4 %>%
     slice(-c(2033))
 
 model1 <- glm(Total.Number.of.Family.members ~ 
                 Household.Head.Sex                                                   +
                 
-                Household.Head.Age   *Type.of.Household                              +
+                log(Household.Head.Age) *  Type.of.Household                         +
                 log(Total.Food.Expenditure ) * Type.of.Household                     +
                 log(Total.Household.Income) * Type.of.Household                      +
                 log(Total.Household.Income) * Electricity                            +
@@ -150,7 +153,7 @@ grid.arrange(p1, p2, p3, nrow = 1)
 ```
 From Figure \ref{fig:assum}, we can see some patterns in the residuals. It would be better to fit some quadratic terms in the explanatory variables. Residuals seem to be normally distributed with some heavy tails. Now, we proceed with the dispersion test as there has been some evidence of underdispersion. 
 
-```{r plot1, out.width = '68%', fig.align = "center", fig.cap = "\\label{fig:disp} Assumptions checking", fig.pos = 'H'}
+```{r plot2, out.width = '68%', fig.align = "center", fig.cap = "\\label{fig:disp} Assumptions checking", fig.pos = 'H'}
 model1 %>%
  ggplot( aes(x=log(fitted(model1)), y=log((dataset4$Total.Number.of.Family.members-fitted(model1))^2)))+
   geom_point(col="#f46d43") +
@@ -176,16 +179,16 @@ kable_styling(latex_options = 'HOLD_position')
 
 drop
 ```
-In the table \ref{tab:drop1}, Type.of.Household:log(Total.Food.Expenditure)	 and Type.of.Household:log(Total.Household.Income) can be eliminated without significantly hurting the model's Deviance. So, we firstly eliminate variable Type.of.Household:log(Total.Household.Income) and check for F test again:-
+In the table \ref{tab:drop1}, Type.of.Household:log(Total.Food.Expenditure)	 and Type.of.Household:log(Total.Household.Income) can be eliminated without significantly hurting the model's Deviance. So, we firstly eliminate variable Type.of.Household:log(Total.Household.Income)	 and check for F test again:-
  
 
 
-```{r mod2}
+```{r mod3}
 model2 <- glm(Total.Number.of.Family.members ~ 
                 Household.Head.Sex                                                   +
-                Household.Head.Age   *Type.of.Household                              +
-                log(Total.Food.Expenditure ) * Type.of.Household                     +
+                log( Household.Head.Age)*  Type.of.Household                             +
                 
+                log(Total.Food.Expenditure)*Type.of.Household                      +
                 log(Total.Household.Income) * Electricity                            +
                 Type.of.Household  *Electricity                                      +
                 log(House.Floor.Area)                                                +
@@ -200,22 +203,52 @@ kable_styling(latex_options = 'HOLD_position')
 
 drop
 
+ 
+
 ```
-The F test say our model is perfectly fine. We can't further remove any variable. So, this is our final model. 
+The F test says that the  model is perfectly fine. But, we will again test for outliers and remove them. But we have a new outlier point 1521. So, we remove the outlier and perform F test again. 
 
 
 
 
-```{r mod3}
-X2 <- sum(resid(model2, type = "pearson")^2)
-dp <- X2 / model2$df.res
+```{r mod4}
+
+
+
+model3 <- glm(Total.Number.of.Family.members ~ 
+                Household.Head.Sex                                                   +
+                log(Household.Head.Age )                             +
+                log(Total.Food.Expenditure )* Type.of.Household     +
+                
+                log(Total.Household.Income) * Electricity                            +
+                Type.of.Household  *Electricity                                      +
+                log(House.Floor.Area)                                                +
+                House.Age                                                            +
+                Number.of.bedrooms                                  
+               ,data = dataset4,family = "poisson")  # fitted the poisson model using glm
+
+drop <- model3 %>%
+drop1(test="F") %>%
+  kable(caption = '\\label{tab:drop1} Performing F test on the inital model') %>%
+kable_styling(latex_options = 'HOLD_position')
+
+drop
+
+
+```
+
+
+```{r final}
+X2 <- sum(resid(model3, type = "pearson")^2)
+dp <- X2 / model3$df.res
 dp
-summary(model2, dispersion = dp)
+model3 %>%
+ summ( dispersion =dp)
 
 
 
 ```
-
+We can see that standard error slight rises up after adjusting with the dispersion parameter, while the intercept term remains the same. 
 
 
 
