@@ -69,8 +69,8 @@ model1 <- glm(Total.Number.of.Family.members ~
                 log(Household.Head.Age)*   Type.of.Household                        +
                 log(Total.Food.Expenditure ) * Type.of.Household                     +
                 log(Total.Household.Income) * Type.of.Household                      +
-                log(Total.Household.Income) * Electricity                            +
-                Electricity                                                         +
+               log(Total.Household.Income) * Electricity                            +
+                Type.of.Household*Electricity                                        +
                 log(House.Floor.Area)                                                +
                 Number.of.bedrooms                                                   +
                 House.Age                                                           
@@ -126,7 +126,7 @@ model1 <- glm(Total.Number.of.Family.members ~
                 log(Total.Food.Expenditure ) * Type.of.Household                     +
                 log(Total.Household.Income) * Type.of.Household                      +
                 log(Total.Household.Income) * Electricity                            +
-                Electricity                                                          +
+                Type.of.Household * Electricity                                                         +
                 log(House.Floor.Area)                                                +
                 Number.of.bedrooms                                                   +
                 House.Age                                                           
@@ -189,7 +189,7 @@ model2 <- glm(Total.Number.of.Family.members ~
                 
                 log(Total.Food.Expenditure)*Type.of.Household                      +
                 log(Total.Household.Income) * Electricity                            +
-                Electricity                                      +
+                Type.of.Household*    Electricity                                  +                                  
                 log(House.Floor.Area)                                                +
                 House.Age                                                            +
                 Number.of.bedrooms                                  
@@ -214,14 +214,15 @@ The F test says that we can remove log(Household.Head.Age):Type.of.Household and
 
 model3 <- glm(Total.Number.of.Family.members ~ 
                 Household.Head.Sex                                                   +
-                log(Household.Head.Age )                             +
-                log(Total.Food.Expenditure )    +
+                log(Household.Head.Age )                              +
+                log(Total.Food.Expenditure ) *Type.of.Household   +
                 
                 log(Total.Household.Income) * Electricity                            +
-                 Electricity                                      +
+                 Type.of.Household*  Electricity                                    +
                 log(House.Floor.Area)                                                +
                 House.Age                                                            +
-                Number.of.bedrooms                                  
+                Number.of.bedrooms                                 
+                
                ,data = dataset4,family = "poisson")  # fitted the poisson model using glm
 
 drop <- model3 %>%
@@ -233,38 +234,17 @@ drop
 
 
 ```
-
-```{r mod5}
-
-model4 <- glm(Total.Number.of.Family.members ~ 
-                Household.Head.Sex                                                   +
-               
-                log(Total.Food.Expenditure )                                         +
-                
-                log(Total.Household.Income) * Electricity                            +
-                 Electricity                                                          +
-                log(House.Floor.Area)                                                +
-                House.Age                                                            +
-                Number.of.bedrooms                                  
-               ,data = dataset4,family = "poisson")  # fitted the poisson model using glm
-
-drop <- model4 %>%
-drop1(test="F") %>%
-  kable(caption = '\\label{tab:drop1} Performing F test on the inital model') %>%
-kable_styling(latex_options = 'HOLD_position')
-
-drop
+Eventually, we reached to our final model that considers interactions between log(Total.Food.Expenditure):Type.of.Household , log(Total.Household.Income) and Electricity, and Type.of.Household:Electricity  as significant. Now, we adjust the standard error using dispersion parameter, which is equivalent of fitting a quasipoission model.  
 
 
-```
-Eventually, we reached to our final model that considers interactions between  log(Total.Household.Income) and Electricity as significant. Now, we adjust the standard error using dispersion parameter, which is equivalent of fitting a quasipoission model.  
+
 
 
 ```{r final}
-X2 <- sum(resid(model4, type = "pearson")^2)
-dp <- X2 / model4$df.res
+X2 <- sum(resid(model3, type = "pearson")^2)
+dp <- X2 / model3$df.res
 dp
-model4 %>%
+model3 %>%
  summ( dispersion =dp)
 
 
