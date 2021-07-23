@@ -55,7 +55,28 @@ table(dataset4$Household.Head.Sex,dataset4$Electricity)
 
 # Formal Data Analysis {#sec:FDA}
 
-we fit a poisson model as our response is a count variable. We have excluded Region as  a covariate because there was only one factor. 
+we fit a poisson model as our response is a count variable. We have excluded Region as  a covariate because there was only one factor. We will start with a model that considers all the initial impressions that we get from the exploratory analysis. The model takes into account the interaction between Household.Head.Age and Type.of.Household, log(Total.Food.Expenditure ) and Type.of.Household,  log(Total.Household.Income) and Electricity, and Type.of.Household and Electricity. We have scaled down Total.Food.Expenditure, Total.Household.Income, and House.Floor.Area by taking log transformation to address the scalability issue in the design matrix. Here is the following model:- 
+
+$$\widehat{\mbox{Total.Number.of.Family.members}} = \widehat{\alpha} +
+ \widehat{\beta}_{\mbox{Household.Head.Sex }} \cdot \mathbb{I}_{\mbox{Household.Head.Sex }}(x) +
+ \widehat{\beta}_{\mbox{ Household.Head.Age   *Type.of.Household }} +
+ \widehat{\beta}_{\mbox{log(Total.Food.Expenditure ) * Type.of.Household }} +
+ \widehat{\beta}_{\mbox{ log(Total.Household.Income) * Electricity }} +
+ \widehat{\beta}_{\mbox{Type.of.Household  *Electricity }} +
+ \widehat{\beta}_{\mbox{log(House.Floor.Area)}} +
+ \widehat{\beta1}_{\mbox{Number.of.bedrooms}}+
+ \widehat{\beta2}_{\mbox{Number.of.bedrooms}}+
+ \widehat{\beta3}_{\mbox{Number.of.bedrooms}}+
+ \widehat{\beta4}_{\mbox{Number.of.bedrooms}}+
+ \widehat{\beta5}_{\mbox{Number.of.bedrooms}}+
+ \widehat{\beta6}_{\mbox{Number.of.bedrooms}}+
+ \widehat{\beta7}_{\mbox{Number.of.bedrooms}}+
+ \widehat{\beta8}_{\mbox{Number.of.bedrooms}}+
+ \widehat{\beta}_{\mbox{House.Age}}
+ 
+ 
+ $$
+
 
 ```{r model1}
 
