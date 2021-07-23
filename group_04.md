@@ -30,13 +30,12 @@ We fit a Poisson model as our response is a count variable. We have
 excluded Region as a covariate because there was only one factor. We
 will start with a model that considers all the initial impressions from
 the exploratory analysis. The model takes into account the interaction
-between Household.Head.Age and Type.of.Household,
-log(Total.Food.Expenditure ) and Type.of.Household,
-log(Total.Household.Income) and Electricity, and Type.of.Household and
-Electricity. We have scaled Total.Food.Expenditure,
-Total.Household.Income, and House.Floor.Area by taking log
-transformation to address the scalability issue in the design matrix.
-Here is the summary of the described model:-
+between log(Household.Head.Age) and Type.of.Household,
+log(Total.Food.Expenditure ) and Type.of.Household, and
+log(Total.Household.Income) and Electricity. We have scaled
+Total.Food.Expenditure, Total.Household.Income, Household.Head.Age, and
+House.Floor.Area by taking log transformation to address the scalability
+issue in the design matrix. Here is the summary of the described model:-
 
 <table class="table table-striped table-hover table-condensed table-responsive" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <tbody>
@@ -86,10 +85,10 @@ log
 <tbody>
 <tr>
 <td style="text-align:left;font-weight: bold;">
-𝛘²(19)
+𝛘²(17)
 </td>
 <td style="text-align:right;">
-937.81
+927.82
 </td>
 </tr>
 <tr>
@@ -113,7 +112,7 @@ Pseudo-R² (McFadden)
 AIC
 </td>
 <td style="text-align:right;">
-8258.08
+8264.07
 </td>
 </tr>
 <tr>
@@ -121,7 +120,7 @@ AIC
 BIC
 </td>
 <td style="text-align:right;">
-8371.29
+8365.95
 </td>
 </tr>
 </tbody>
@@ -151,13 +150,13 @@ p
 (Intercept)
 </td>
 <td style="text-align:right;">
--4.29
+-4.14
 </td>
 <td style="text-align:right;">
 0.71
 </td>
 <td style="text-align:right;">
--6.00
+-5.84
 </td>
 <td style="text-align:right;">
 0.00
@@ -174,7 +173,7 @@ Household.Head.SexMale
 0.03
 </td>
 <td style="text-align:right;">
-6.80
+6.74
 </td>
 <td style="text-align:right;">
 0.00
@@ -191,10 +190,10 @@ log(Household.Head.Age)
 0.07
 </td>
 <td style="text-align:right;">
--0.28
+-0.33
 </td>
 <td style="text-align:right;">
-0.78
+0.74
 </td>
 </tr>
 <tr>
@@ -202,16 +201,16 @@ log(Household.Head.Age)
 Type.of.HouseholdSingle Family
 </td>
 <td style="text-align:right;">
--0.68
+-0.51
 </td>
 <td style="text-align:right;">
-0.57
+0.56
 </td>
 <td style="text-align:right;">
--1.19
+-0.91
 </td>
 <td style="text-align:right;">
-0.23
+0.36
 </td>
 </tr>
 <tr>
@@ -219,16 +218,16 @@ Type.of.HouseholdSingle Family
 Type.of.HouseholdTwo or More Nonrelated Persons/Members
 </td>
 <td style="text-align:right;">
--11.18
+-3.83
 </td>
 <td style="text-align:right;">
-12.66
+8.33
 </td>
 <td style="text-align:right;">
--0.88
+-0.46
 </td>
 <td style="text-align:right;">
-0.38
+0.65
 </td>
 </tr>
 <tr>
@@ -242,7 +241,7 @@ log(Total.Food.Expenditure)
 0.06
 </td>
 <td style="text-align:right;">
-9.86
+9.85
 </td>
 <td style="text-align:right;">
 0.00
@@ -259,7 +258,7 @@ log(Total.Household.Income)
 0.06
 </td>
 <td style="text-align:right;">
-0.19
+0.18
 </td>
 <td style="text-align:right;">
 0.85
@@ -270,13 +269,13 @@ log(Total.Household.Income)
 Electricity1
 </td>
 <td style="text-align:right;">
-2.06
+1.65
 </td>
 <td style="text-align:right;">
-0.58
+0.57
 </td>
 <td style="text-align:right;">
-3.53
+2.91
 </td>
 <td style="text-align:right;">
 0.00
@@ -293,10 +292,10 @@ log(House.Floor.Area)
 0.02
 </td>
 <td style="text-align:right;">
--2.80
+-2.87
 </td>
 <td style="text-align:right;">
-0.01
+0.00
 </td>
 </tr>
 <tr>
@@ -310,7 +309,7 @@ Number.of.bedrooms
 0.01
 </td>
 <td style="text-align:right;">
-2.27
+2.43
 </td>
 <td style="text-align:right;">
 0.02
@@ -327,7 +326,7 @@ House.Age
 0.00
 </td>
 <td style="text-align:right;">
--3.96
+-4.02
 </td>
 <td style="text-align:right;">
 0.00
@@ -344,10 +343,10 @@ log(Household.Head.Age):Type.of.HouseholdSingle Family
 0.08
 </td>
 <td style="text-align:right;">
--1.05
+-1.02
 </td>
 <td style="text-align:right;">
-0.29
+0.31
 </td>
 </tr>
 <tr>
@@ -356,16 +355,16 @@ log(Household.Head.Age):Type.of.HouseholdTwo or More Nonrelated
 Persons/Members
 </td>
 <td style="text-align:right;">
-0.64
+0.57
 </td>
 <td style="text-align:right;">
-0.77
+0.74
 </td>
 <td style="text-align:right;">
-0.83
+0.76
 </td>
 <td style="text-align:right;">
-0.41
+0.44
 </td>
 </tr>
 <tr>
@@ -379,10 +378,10 @@ Type.of.HouseholdSingle Family:log(Total.Food.Expenditure)
 0.06
 </td>
 <td style="text-align:right;">
-0.62
+0.67
 </td>
 <td style="text-align:right;">
-0.53
+0.50
 </td>
 </tr>
 <tr>
@@ -391,16 +390,16 @@ Type.of.HouseholdTwo or More Nonrelated
 Persons/Members:log(Total.Food.Expenditure)
 </td>
 <td style="text-align:right;">
-0.88
+0.40
 </td>
 <td style="text-align:right;">
-1.39
+1.20
 </td>
 <td style="text-align:right;">
-0.63
+0.33
 </td>
 <td style="text-align:right;">
-0.53
+0.74
 </td>
 </tr>
 <tr>
@@ -408,16 +407,16 @@ Persons/Members:log(Total.Food.Expenditure)
 Type.of.HouseholdSingle Family:log(Total.Household.Income)
 </td>
 <td style="text-align:right;">
+0.01
+</td>
+<td style="text-align:right;">
 0.04
 </td>
 <td style="text-align:right;">
-0.05
+0.11
 </td>
 <td style="text-align:right;">
-0.82
-</td>
-<td style="text-align:right;">
-0.41
+0.91
 </td>
 </tr>
 <tr>
@@ -426,16 +425,16 @@ Type.of.HouseholdTwo or More Nonrelated
 Persons/Members:log(Total.Household.Income)
 </td>
 <td style="text-align:right;">
--0.01
+-0.23
 </td>
 <td style="text-align:right;">
-0.79
+0.75
 </td>
 <td style="text-align:right;">
--0.02
+-0.31
 </td>
 <td style="text-align:right;">
-0.99
+0.75
 </td>
 </tr>
 <tr>
@@ -443,50 +442,16 @@ Persons/Members:log(Total.Household.Income)
 log(Total.Household.Income):Electricity1
 </td>
 <td style="text-align:right;">
--0.18
+-0.16
 </td>
 <td style="text-align:right;">
 0.05
 </td>
 <td style="text-align:right;">
--3.59
+-3.19
 </td>
 <td style="text-align:right;">
 0.00
-</td>
-</tr>
-<tr>
-<td style="text-align:left;font-weight: bold;">
-Type.of.HouseholdSingle Family:Electricity1
-</td>
-<td style="text-align:right;">
--0.21
-</td>
-<td style="text-align:right;">
-0.07
-</td>
-<td style="text-align:right;">
--3.03
-</td>
-<td style="text-align:right;">
-0.00
-</td>
-</tr>
-<tr>
-<td style="text-align:left;font-weight: bold;">
-Type.of.HouseholdTwo or More Nonrelated Persons/Members:Electricity1
-</td>
-<td style="text-align:right;">
--0.81
-</td>
-<td style="text-align:right;">
-0.81
-</td>
-<td style="text-align:right;">
--0.99
-</td>
-<td style="text-align:right;">
-0.32
 </td>
 </tr>
 </tbody>
@@ -503,7 +468,7 @@ We can observe a lot of insignificant variables in our initial model.
 However, before proceeding to the wald test to check the significance of
 each variable, we, firstly, looked for any potential outliers and
 checked whether assumptions are holding. We can notice that the deviance
-of the model(1280.03) is much less than chi-square(2209.77). There could
+of the model(1290.01) is much less than chi-square(2211.83). There could
 be a case of underdispersion wherein the estimated variance is less than
 the expected mean. We can interpret the coefficients in such a situation
 but can’t rely on standard error as they are deflated.
@@ -529,7 +494,7 @@ an Outlier test:-
     No Studentized residuals with Bonferroni p < 0.05
     Largest |rstudent|:
          rstudent unadjusted p-value Bonferroni p
-    2033 4.047992         5.1659e-05      0.10957
+    2033 4.044985         5.2326e-05      0.11104
 
 We have identified the outlier point having id 2033. However, addressing
 outlier is totally subjective. We try to fit the model again removing
@@ -563,16 +528,16 @@ Assumptions checking
         Underdispersion test
 
     data:  .
-    z = -18.196, p-value < 2.2e-16
+    z = -17.657, p-value < 2.2e-16
     alternative hypothesis: true alpha is less than 0
     sample estimates:
          alpha 
-    -0.3865605 
+    -0.3806268 
 
-The negative value of aplha (-0.39) is significant because the p\_value
+The negative value of aplha (-0.38) is significant because the p\_value
 for the hypothesis test is (0). Figure displays the underdispersed
 variance. Therefore, we can’t rely on Wald’s test for inference in the
-possion model. Rather, we perform analysis with quasi-poisson model that
+above model. Rather, we perform analysis with quasi-poisson model that
 adjusts variance for both overdispersion and underdispersion. We resort
 to F test and do step by step variable removal to choose the best
 fitting model.
@@ -611,10 +576,10 @@ Pr(&gt;F)
 NA
 </td>
 <td style="text-align:right;">
-1263.642
+1273.652
 </td>
 <td style="text-align:right;">
-8236.905
+8242.915
 </td>
 <td style="text-align:right;">
 NA
@@ -631,13 +596,13 @@ Household.Head.Sex
 1
 </td>
 <td style="text-align:right;">
-1316.352
+1325.520
 </td>
 <td style="text-align:right;">
-8287.615
+8292.783
 </td>
 <td style="text-align:right;">
-87.6384458
+85.6430129
 </td>
 <td style="text-align:right;">
 0.0000000
@@ -651,16 +616,16 @@ log(House.Floor.Area)
 1
 </td>
 <td style="text-align:right;">
-1271.718
+1282.125
 </td>
 <td style="text-align:right;">
-8242.981
+8249.388
 </td>
 <td style="text-align:right;">
-13.4283054
+13.9910642
 </td>
 <td style="text-align:right;">
-0.0002540
+0.0001886
 </td>
 </tr>
 <tr>
@@ -671,16 +636,16 @@ Number.of.bedrooms
 1
 </td>
 <td style="text-align:right;">
-1267.914
+1278.592
 </td>
 <td style="text-align:right;">
-8239.177
+8245.855
 </td>
 <td style="text-align:right;">
-7.1026865
+8.1568031
 </td>
 <td style="text-align:right;">
-0.0077558
+0.0043321
 </td>
 </tr>
 <tr>
@@ -691,16 +656,16 @@ House.Age
 1
 </td>
 <td style="text-align:right;">
-1277.668
+1288.128
 </td>
 <td style="text-align:right;">
-8248.931
+8255.391
 </td>
 <td style="text-align:right;">
-23.3201071
+23.9032567
 </td>
 <td style="text-align:right;">
-0.0000015
+0.0000011
 </td>
 </tr>
 <tr>
@@ -711,16 +676,16 @@ log(Household.Head.Age):Type.of.Household
 2
 </td>
 <td style="text-align:right;">
-1265.810
+1275.626
 </td>
 <td style="text-align:right;">
-8235.073
+8240.889
 </td>
 <td style="text-align:right;">
-1.8024161
+1.6300660
 </td>
 <td style="text-align:right;">
-0.1651549
+0.1961641
 </td>
 </tr>
 <tr>
@@ -731,16 +696,16 @@ Type.of.Household:log(Total.Food.Expenditure)
 2
 </td>
 <td style="text-align:right;">
-1264.559
+1274.361
 </td>
 <td style="text-align:right;">
-8233.822
+8239.623
 </td>
 <td style="text-align:right;">
-0.7626639
+0.5852555
 </td>
 <td style="text-align:right;">
-0.4665514
+0.5570542
 </td>
 </tr>
 <tr>
@@ -751,16 +716,16 @@ Type.of.Household:log(Total.Household.Income)
 2
 </td>
 <td style="text-align:right;">
-1264.305
+1273.757
 </td>
 <td style="text-align:right;">
-8233.568
+8239.019
 </td>
 <td style="text-align:right;">
-0.5514431
+0.0865810
 </td>
 <td style="text-align:right;">
-0.5762012
+0.9170645
 </td>
 </tr>
 <tr>
@@ -771,42 +736,23 @@ log(Total.Household.Income):Electricity
 1
 </td>
 <td style="text-align:right;">
-1276.488
+1283.776
 </td>
 <td style="text-align:right;">
-8247.751
+8251.039
 </td>
 <td style="text-align:right;">
-21.3588758
+16.7164971
 </td>
 <td style="text-align:right;">
-0.0000040
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Type.of.Household:Electricity
-</td>
-<td style="text-align:right;">
-2
-</td>
-<td style="text-align:right;">
-1273.652
-</td>
-<td style="text-align:right;">
-8242.915
-</td>
-<td style="text-align:right;">
-8.3213715
-</td>
-<td style="text-align:right;">
-0.0002514
+0.0000450
 </td>
 </tr>
 </tbody>
 </table>
 
-In the table , Type.of.Household:log(Total.Food.Expenditure) and
+In the table ,log(Household.Head.Age):Type.of.Household,
+Type.of.Household:log(Total.Food.Expenditure) and
 Type.of.Household:log(Total.Household.Income) can be eliminated without
 significantly hurting the model’s Deviance. So, we firstly eliminate
 variable Type.of.Household:log(Total.Household.Income) and check for F
@@ -846,10 +792,10 @@ Pr(&gt;F)
 NA
 </td>
 <td style="text-align:right;">
-1264.305
+1273.757
 </td>
 <td style="text-align:right;">
-8233.568
+8239.019
 </td>
 <td style="text-align:right;">
 NA
@@ -866,13 +812,13 @@ Household.Head.Sex
 1
 </td>
 <td style="text-align:right;">
-1317.263
+1325.950
 </td>
 <td style="text-align:right;">
-8284.526
+8289.213
 </td>
 <td style="text-align:right;">
-88.088638
+86.254403
 </td>
 <td style="text-align:right;">
 0.0000000
@@ -886,16 +832,16 @@ log(House.Floor.Area)
 1
 </td>
 <td style="text-align:right;">
-1272.184
+1282.239
 </td>
 <td style="text-align:right;">
-8239.447
+8245.502
 </td>
 <td style="text-align:right;">
-13.104696
+14.018291
 </td>
 <td style="text-align:right;">
-0.0003015
+0.0001859
 </td>
 </tr>
 <tr>
@@ -906,16 +852,16 @@ House.Age
 1
 </td>
 <td style="text-align:right;">
-1278.307
+1288.193
 </td>
 <td style="text-align:right;">
-8245.570
+8251.455
 </td>
 <td style="text-align:right;">
-23.289848
+23.856783
 </td>
 <td style="text-align:right;">
-0.0000015
+0.0000011
 </td>
 </tr>
 <tr>
@@ -926,16 +872,16 @@ Number.of.bedrooms
 1
 </td>
 <td style="text-align:right;">
-1268.470
+1278.713
 </td>
 <td style="text-align:right;">
-8235.733
+8241.976
 </td>
 <td style="text-align:right;">
-6.926993
+8.190448
 </td>
 <td style="text-align:right;">
-0.0085525
+0.0042528
 </td>
 </tr>
 <tr>
@@ -946,16 +892,16 @@ log(Household.Head.Age):Type.of.Household
 2
 </td>
 <td style="text-align:right;">
-1266.331
+1275.698
 </td>
 <td style="text-align:right;">
-8231.594
+8236.961
 </td>
 <td style="text-align:right;">
-1.684972
+1.604133
 </td>
 <td style="text-align:right;">
-0.1856999
+0.2013095
 </td>
 </tr>
 <tr>
@@ -966,16 +912,16 @@ Type.of.Household:log(Total.Food.Expenditure)
 2
 </td>
 <td style="text-align:right;">
-1268.821
+1275.549
 </td>
 <td style="text-align:right;">
-8234.083
+8236.812
 </td>
 <td style="text-align:right;">
-3.755258
+1.481077
 </td>
 <td style="text-align:right;">
-0.0235514
+0.2276296
 </td>
 </tr>
 <tr>
@@ -986,44 +932,25 @@ log(Total.Household.Income):Electricity
 1
 </td>
 <td style="text-align:right;">
-1277.721
+1284.083
 </td>
 <td style="text-align:right;">
-8244.984
+8247.345
 </td>
 <td style="text-align:right;">
-22.315365
+17.064527
 </td>
 <td style="text-align:right;">
-0.0000025
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Type.of.Household:Electricity
-</td>
-<td style="text-align:right;">
-2
-</td>
-<td style="text-align:right;">
-1273.757
-</td>
-<td style="text-align:right;">
-8239.019
-</td>
-<td style="text-align:right;">
-7.860466
-</td>
-<td style="text-align:right;">
-0.0003971
+0.0000375
 </td>
 </tr>
 </tbody>
 </table>
 
-The F test says that the model is perfectly fine. But, we will again
-test for outliers and remove them. But we have a new outlier point 1521.
-So, we remove the outlier and perform F test again.
+The F test says that we can remove
+log(Household.Head.Age):Type.of.Household and
+Type.of.Household:log(Total.Food.Expenditure). So, repeat the same
+process until we reach all terms are significant.
 
 <table class="table" style="margin-left: auto; margin-right: auto;">
 <caption>
@@ -1059,10 +986,10 @@ Pr(&gt;F)
 NA
 </td>
 <td style="text-align:right;">
-1266.331
+1420.634
 </td>
 <td style="text-align:right;">
-8231.594
+8373.897
 </td>
 <td style="text-align:right;">
 NA
@@ -1079,13 +1006,13 @@ Household.Head.Sex
 1
 </td>
 <td style="text-align:right;">
-1318.782
+1453.645
 </td>
 <td style="text-align:right;">
-8282.045
+8404.908
 </td>
 <td style="text-align:right;">
-87.188699
+49.0529897
 </td>
 <td style="text-align:right;">
 0.0000000
@@ -1099,16 +1026,36 @@ log(Household.Head.Age)
 1
 </td>
 <td style="text-align:right;">
-1269.737
+1420.848
 </td>
 <td style="text-align:right;">
-8233.000
+8372.111
 </td>
 <td style="text-align:right;">
-5.661440
+0.3185475
 </td>
 <td style="text-align:right;">
-0.0174305
+0.5725418
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+log(Total.Food.Expenditure)
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1871.125
+</td>
+<td style="text-align:right;">
+8822.388
+</td>
+<td style="text-align:right;">
+669.4095760
+</td>
+<td style="text-align:right;">
+0.0000000
 </td>
 </tr>
 <tr>
@@ -1119,16 +1066,16 @@ log(House.Floor.Area)
 1
 </td>
 <td style="text-align:right;">
-1274.293
+1429.989
 </td>
 <td style="text-align:right;">
-8237.556
+8381.251
 </td>
 <td style="text-align:right;">
-13.234014
+13.9005724
 </td>
 <td style="text-align:right;">
-0.0002815
+0.0001978
 </td>
 </tr>
 <tr>
@@ -1139,16 +1086,16 @@ House.Age
 1
 </td>
 <td style="text-align:right;">
-1280.231
+1431.574
 </td>
 <td style="text-align:right;">
-8243.494
+8382.837
 </td>
 <td style="text-align:right;">
-23.105661
+16.2559534
 </td>
 <td style="text-align:right;">
-0.0000016
+0.0000573
 </td>
 </tr>
 <tr>
@@ -1159,36 +1106,16 @@ Number.of.bedrooms
 1
 </td>
 <td style="text-align:right;">
-1270.625
+1427.393
 </td>
 <td style="text-align:right;">
-8233.888
+8378.656
 </td>
 <td style="text-align:right;">
-7.138074
+10.0442410
 </td>
 <td style="text-align:right;">
-0.0076046
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-log(Total.Food.Expenditure):Type.of.Household
-</td>
-<td style="text-align:right;">
-2
-</td>
-<td style="text-align:right;">
-1270.773
-</td>
-<td style="text-align:right;">
-8232.036
-</td>
-<td style="text-align:right;">
-3.691839
-</td>
-<td style="text-align:right;">
-0.0250877
+0.0015501
 </td>
 </tr>
 <tr>
@@ -1199,42 +1126,195 @@ log(Total.Household.Income):Electricity
 1
 </td>
 <td style="text-align:right;">
-1279.699
+1432.657
 </td>
 <td style="text-align:right;">
-8242.962
+8383.920
 </td>
 <td style="text-align:right;">
-22.221118
+17.8655919
 </td>
 <td style="text-align:right;">
-0.0000026
+0.0000247
+</td>
+</tr>
+</tbody>
+</table>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<caption>
+Performing F test on the inital model
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+Df
+</th>
+<th style="text-align:right;">
+Deviance
+</th>
+<th style="text-align:right;">
+AIC
+</th>
+<th style="text-align:right;">
+F value
+</th>
+<th style="text-align:right;">
+Pr(&gt;F)
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+&lt;none&gt;
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+1420.848
+</td>
+<td style="text-align:right;">
+8372.111
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-Type.of.Household:Electricity
+Household.Head.Sex
 </td>
 <td style="text-align:right;">
-2
+1
 </td>
 <td style="text-align:right;">
-1275.698
+1453.886
 </td>
 <td style="text-align:right;">
-8236.961
+8403.149
 </td>
 <td style="text-align:right;">
-7.785016
+49.10858
 </td>
 <td style="text-align:right;">
-0.0004280
+0.0000000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+log(Total.Food.Expenditure)
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1871.234
+</td>
+<td style="text-align:right;">
+8820.497
+</td>
+<td style="text-align:right;">
+669.46960
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+log(House.Floor.Area)
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1430.102
+</td>
+<td style="text-align:right;">
+8379.365
+</td>
+<td style="text-align:right;">
+13.75527
+</td>
+<td style="text-align:right;">
+0.0002136
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+House.Age
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1431.712
+</td>
+<td style="text-align:right;">
+8380.975
+</td>
+<td style="text-align:right;">
+16.14837
+</td>
+<td style="text-align:right;">
+0.0000606
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Number.of.bedrooms
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1427.755
+</td>
+<td style="text-align:right;">
+8377.018
+</td>
+<td style="text-align:right;">
+10.26619
+</td>
+<td style="text-align:right;">
+0.0013751
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+log(Total.Household.Income):Electricity
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1432.862
+</td>
+<td style="text-align:right;">
+8382.125
+</td>
+<td style="text-align:right;">
+17.85789
+</td>
+<td style="text-align:right;">
+0.0000248
 </td>
 </tr>
 </tbody>
 </table>
 
-    [1] 0.6141164
+Eventually, we reached to our final model that considers interactions
+between log(Total.Household.Income) and Electricity as significant. Now,
+we adjust the standard error using dispersion parameter, which is
+equivalent of fitting a quasipoission model.
+
+    [1] 0.6880479
 
 <table class="table table-striped table-hover table-condensed table-responsive" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <tbody>
@@ -1284,10 +1364,10 @@ log
 <tbody>
 <tr>
 <td style="text-align:left;font-weight: bold;">
-𝛘²(15)
+𝛘²(8)
 </td>
 <td style="text-align:right;">
-925.96
+771.44
 </td>
 </tr>
 <tr>
@@ -1295,7 +1375,7 @@ log
 Pseudo-R² (Cragg-Uhler)
 </td>
 <td style="text-align:right;">
-0.36
+0.31
 </td>
 </tr>
 <tr>
@@ -1303,7 +1383,7 @@ Pseudo-R² (Cragg-Uhler)
 Pseudo-R² (McFadden)
 </td>
 <td style="text-align:right;">
-0.10
+0.08
 </td>
 </tr>
 <tr>
@@ -1311,7 +1391,7 @@ Pseudo-R² (McFadden)
 AIC
 </td>
 <td style="text-align:right;">
-8231.59
+8372.11
 </td>
 </tr>
 <tr>
@@ -1319,7 +1399,7 @@ AIC
 BIC
 </td>
 <td style="text-align:right;">
-8322.15
+8423.05
 </td>
 </tr>
 </tbody>
@@ -1349,13 +1429,13 @@ p
 (Intercept)
 </td>
 <td style="text-align:right;">
--4.03
+-5.44
 </td>
 <td style="text-align:right;">
-0.68
+0.53
 </td>
 <td style="text-align:right;">
--5.93
+-10.18
 </td>
 <td style="text-align:right;">
 0.00
@@ -1366,33 +1446,16 @@ p
 Household.Head.SexMale
 </td>
 <td style="text-align:right;">
-0.22
+0.17
 </td>
 <td style="text-align:right;">
 0.03
 </td>
 <td style="text-align:right;">
-7.08
+5.64
 </td>
 <td style="text-align:right;">
 0.00
-</td>
-</tr>
-<tr>
-<td style="text-align:left;font-weight: bold;">
-log(Household.Head.Age)
-</td>
-<td style="text-align:right;">
--0.07
-</td>
-<td style="text-align:right;">
-0.04
-</td>
-<td style="text-align:right;">
--1.85
-</td>
-<td style="text-align:right;">
-0.06
 </td>
 </tr>
 <tr>
@@ -1400,13 +1463,13 @@ log(Household.Head.Age)
 log(Total.Food.Expenditure)
 </td>
 <td style="text-align:right;">
-0.51
+0.62
 </td>
 <td style="text-align:right;">
-0.04
+0.03
 </td>
 <td style="text-align:right;">
-12.04
+21.93
 </td>
 <td style="text-align:right;">
 0.00
@@ -1414,53 +1477,19 @@ log(Total.Food.Expenditure)
 </tr>
 <tr>
 <td style="text-align:left;font-weight: bold;">
-Type.of.HouseholdSingle Family
-</td>
-<td style="text-align:right;">
--1.08
-</td>
-<td style="text-align:right;">
-0.48
-</td>
-<td style="text-align:right;">
--2.26
-</td>
-<td style="text-align:right;">
-0.02
-</td>
-</tr>
-<tr>
-<td style="text-align:left;font-weight: bold;">
-Type.of.HouseholdTwo or More Nonrelated Persons/Members
-</td>
-<td style="text-align:right;">
--7.97
-</td>
-<td style="text-align:right;">
-11.31
-</td>
-<td style="text-align:right;">
--0.70
-</td>
-<td style="text-align:right;">
-0.48
-</td>
-</tr>
-<tr>
-<td style="text-align:left;font-weight: bold;">
 log(Total.Household.Income)
 </td>
 <td style="text-align:right;">
-0.04
+0.02
 </td>
 <td style="text-align:right;">
 0.05
 </td>
 <td style="text-align:right;">
-0.79
+0.47
 </td>
 <td style="text-align:right;">
-0.43
+0.63
 </td>
 </tr>
 <tr>
@@ -1468,13 +1497,13 @@ log(Total.Household.Income)
 Electricity1
 </td>
 <td style="text-align:right;">
-2.08
+1.78
 </td>
 <td style="text-align:right;">
-0.58
+0.56
 </td>
 <td style="text-align:right;">
-3.58
+3.19
 </td>
 <td style="text-align:right;">
 0.00
@@ -1491,7 +1520,7 @@ log(House.Floor.Area)
 0.02
 </td>
 <td style="text-align:right;">
--2.81
+-3.03
 </td>
 <td style="text-align:right;">
 0.00
@@ -1508,7 +1537,7 @@ House.Age
 0.00
 </td>
 <td style="text-align:right;">
--3.70
+-3.27
 </td>
 <td style="text-align:right;">
 0.00
@@ -1525,45 +1554,10 @@ Number.of.bedrooms
 0.01
 </td>
 <td style="text-align:right;">
-2.07
+2.63
 </td>
 <td style="text-align:right;">
-0.04
-</td>
-</tr>
-<tr>
-<td style="text-align:left;font-weight: bold;">
-log(Total.Food.Expenditure):Type.of.HouseholdSingle Family
-</td>
-<td style="text-align:right;">
-0.09
-</td>
-<td style="text-align:right;">
-0.04
-</td>
-<td style="text-align:right;">
-1.99
-</td>
-<td style="text-align:right;">
-0.05
-</td>
-</tr>
-<tr>
-<td style="text-align:left;font-weight: bold;">
-log(Total.Food.Expenditure):Type.of.HouseholdTwo or More Nonrelated
-Persons/Members
-</td>
-<td style="text-align:right;">
-0.78
-</td>
-<td style="text-align:right;">
-1.08
-</td>
-<td style="text-align:right;">
-0.72
-</td>
-<td style="text-align:right;">
-0.47
+0.01
 </td>
 </tr>
 <tr>
@@ -1571,50 +1565,16 @@ Persons/Members
 log(Total.Household.Income):Electricity1
 </td>
 <td style="text-align:right;">
--0.19
+-0.17
 </td>
 <td style="text-align:right;">
 0.05
 </td>
 <td style="text-align:right;">
--3.67
+-3.47
 </td>
 <td style="text-align:right;">
 0.00
-</td>
-</tr>
-<tr>
-<td style="text-align:left;font-weight: bold;">
-Type.of.HouseholdSingle Family:Electricity1
-</td>
-<td style="text-align:right;">
--0.20
-</td>
-<td style="text-align:right;">
-0.07
-</td>
-<td style="text-align:right;">
--2.93
-</td>
-<td style="text-align:right;">
-0.00
-</td>
-</tr>
-<tr>
-<td style="text-align:left;font-weight: bold;">
-Type.of.HouseholdTwo or More Nonrelated Persons/Members:Electricity1
-</td>
-<td style="text-align:right;">
--0.72
-</td>
-<td style="text-align:right;">
-0.74
-</td>
-<td style="text-align:right;">
--0.98
-</td>
-<td style="text-align:right;">
-0.33
 </td>
 </tr>
 </tbody>
@@ -1628,8 +1588,16 @@ Type.of.HouseholdTwo or More Nonrelated Persons/Members:Electricity1
 </table>
 
 We can see that standard error slight rises up after adjusting with the
-dispersion parameter, while the intercept term remains the same.
+dispersion parameter, while the intercept term remains the same. Still ,
+the wald test is not very reliable to draw inferences and may conflict
+with the F test.
 
 # Conclusions
 
 # Extention
+
+We will consider more appropirate models like Generalized poisson model,
+or Conway-Maxwell Poisson (COM-Poisson) Regression, which have less
+expected residual variance than the mean. We wil also attempt to apply
+quadratic model that address the slight curve in the deviance against
+fitted plot.

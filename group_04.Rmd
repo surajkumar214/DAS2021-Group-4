@@ -2,10 +2,9 @@
 title: "Group_04"
 author: "Suraj Kumar"
 date: "17/07/2021"
-output: 
-   github_document:
-   number_sections: yes 
-
+output: github_document
+   
+number_sections: yes 
 always_allow_html: true
            
 fig_caption: yes
@@ -31,6 +30,7 @@ library(jtools)
 library(sjPlot)
 library(AER)
 library(car)
+
 ```
 
 
@@ -57,7 +57,7 @@ The Philippine government conducts surveys on household income and expenditure e
 
 # Formal Data Analysis {#sec:FDA}
 
-We fit a Poisson model as our response is a count variable. We have excluded Region as a covariate because there was only one factor. We will start with a model that considers all the initial impressions from the exploratory analysis. The model takes into account the interaction between Household.Head.Age and Type.of.Household, log(Total.Food.Expenditure ) and Type.of.Household,  log(Total.Household.Income) and Electricity, and Type.of.Household and Electricity. We have scaled Total.Food.Expenditure, Total.Household.Income, and House.Floor.Area by taking log transformation to address the scalability issue in the design matrix. Here is the summary of the described model:- 
+We fit a Poisson model as our response is a count variable. We have excluded Region as a covariate because there was only one factor. We will start with a model that considers all the initial impressions from the exploratory analysis. The model takes into account the interaction between log(Household.Head.Age) and Type.of.Household, log(Total.Food.Expenditure ) and Type.of.Household, and  log(Total.Household.Income) and Electricity. We have scaled Total.Food.Expenditure, Total.Household.Income, Household.Head.Age, and House.Floor.Area by taking log transformation to address the scalability issue in the design matrix. Here is the summary of the described model:- 
 
 
 
@@ -70,7 +70,7 @@ model1 <- glm(Total.Number.of.Family.members ~
                 log(Total.Food.Expenditure ) * Type.of.Household                     +
                 log(Total.Household.Income) * Type.of.Household                      +
                 log(Total.Household.Income) * Electricity                            +
-                Type.of.Household  *Electricity                                      +
+                Electricity                                                         +
                 log(House.Floor.Area)                                                +
                 Number.of.bedrooms                                                   +
                 House.Age                                                           
@@ -126,7 +126,7 @@ model1 <- glm(Total.Number.of.Family.members ~
                 log(Total.Food.Expenditure ) * Type.of.Household                     +
                 log(Total.Household.Income) * Type.of.Household                      +
                 log(Total.Household.Income) * Electricity                            +
-                Type.of.Household  *Electricity                                      +
+                Electricity                                                          +
                 log(House.Floor.Area)                                                +
                 Number.of.bedrooms                                                   +
                 House.Age                                                           
@@ -166,8 +166,7 @@ dis <- model1 %>%
 dispersiontest( trafo = 1 ,alternative = c("less"))
 dis
 ```
-The negative value of aplha (`r round(dis$estimate,2)`) is significant because the p_value for the hypothesis test is (`r round(dis$p.value,2)`). Figure \ref{fig:disp} displays the underdispersed variance. 
-Therefore, we can't rely on Wald's test for inference in the possion model.  Rather, we perform analysis with quasi-poisson model that adjusts variance for both overdispersion and underdispersion. We resort to F test and do step by step variable removal to choose the best fitting model.  
+The negative value of aplha (`r round(dis$estimate,2)`) is significant because the p_value for the hypothesis test is (`r round(dis$p.value,2)`). Figure \ref{fig:disp} displays the underdispersed variance. Therefore, we can't rely on Wald's test for inference in the above model.  Rather, we perform analysis with quasi-poisson model that adjusts variance for both overdispersion and underdispersion. We resort to F test and do step by step variable removal to choose the best fitting model.  
 
 
 
@@ -179,7 +178,7 @@ kable_styling(latex_options = 'HOLD_position')
 
 drop
 ```
-In the table \ref{tab:drop1}, Type.of.Household:log(Total.Food.Expenditure)	 and Type.of.Household:log(Total.Household.Income) can be eliminated without significantly hurting the model's Deviance. So, we firstly eliminate variable Type.of.Household:log(Total.Household.Income)	 and check for F test again:-
+In the table \ref{tab:drop1},log(Household.Head.Age):Type.of.Household, Type.of.Household:log(Total.Food.Expenditure)	 and Type.of.Household:log(Total.Household.Income) can be eliminated without significantly hurting the model's Deviance. So, we firstly eliminate variable Type.of.Household:log(Total.Household.Income)	 and check for F test again:-
  
 
 
@@ -190,7 +189,7 @@ model2 <- glm(Total.Number.of.Family.members ~
                 
                 log(Total.Food.Expenditure)*Type.of.Household                      +
                 log(Total.Household.Income) * Electricity                            +
-                Type.of.Household  *Electricity                                      +
+                Electricity                                      +
                 log(House.Floor.Area)                                                +
                 House.Age                                                            +
                 Number.of.bedrooms                                  
@@ -206,22 +205,20 @@ drop
  
 
 ```
-The F test says that the  model is perfectly fine. But, we will again test for outliers and remove them. But we have a new outlier point 1521. So, we remove the outlier and perform F test again. 
+The F test says that we can remove log(Household.Head.Age):Type.of.Household and Type.of.Household:log(Total.Food.Expenditure). So, repeat the same process until we reach all terms are significant. 
 
 
 
 
 ```{r mod4}
 
-
-
 model3 <- glm(Total.Number.of.Family.members ~ 
                 Household.Head.Sex                                                   +
                 log(Household.Head.Age )                             +
-                log(Total.Food.Expenditure )* Type.of.Household     +
+                log(Total.Food.Expenditure )    +
                 
                 log(Total.Household.Income) * Electricity                            +
-                Type.of.Household  *Electricity                                      +
+                 Electricity                                      +
                 log(House.Floor.Area)                                                +
                 House.Age                                                            +
                 Number.of.bedrooms                                  
@@ -237,18 +234,46 @@ drop
 
 ```
 
+```{r mod5}
+
+model4 <- glm(Total.Number.of.Family.members ~ 
+                Household.Head.Sex                                                   +
+               
+                log(Total.Food.Expenditure )                                         +
+                
+                log(Total.Household.Income) * Electricity                            +
+                 Electricity                                                          +
+                log(House.Floor.Area)                                                +
+                House.Age                                                            +
+                Number.of.bedrooms                                  
+               ,data = dataset4,family = "poisson")  # fitted the poisson model using glm
+
+drop <- model4 %>%
+drop1(test="F") %>%
+  kable(caption = '\\label{tab:drop1} Performing F test on the inital model') %>%
+kable_styling(latex_options = 'HOLD_position')
+
+drop
+
+
+```
+Eventually, we reached to our final model that considers interactions between  log(Total.Household.Income) and Electricity as significant. Now, we adjust the standard error using dispersion parameter, which is equivalent of fitting a quasipoission model.  
+
 
 ```{r final}
-X2 <- sum(resid(model3, type = "pearson")^2)
-dp <- X2 / model3$df.res
+X2 <- sum(resid(model4, type = "pearson")^2)
+dp <- X2 / model4$df.res
 dp
-model3 %>%
+model4 %>%
  summ( dispersion =dp)
 
 
 
 ```
-We can see that standard error slight rises up after adjusting with the dispersion parameter, while the intercept term remains the same. 
+We can see that standard error slight rises up after adjusting with the dispersion parameter, while the intercept term remains the same. Still , the wald test is not very reliable to draw inferences and may conflict with the F test. 
+
+
+
 
 
 
@@ -256,7 +281,7 @@ We can see that standard error slight rises up after adjusting with the dispersi
 
 # Extention {#sec:Ext}
 
-
+We will consider more appropirate models like Generalized poisson model, or Conway-Maxwell Poisson (COM-Poisson) Regression, which have less expected residual variance than the mean. We wil also attempt to apply quadratic model that address the slight curve in the deviance against fitted plot.  
 
 
 
