@@ -57,24 +57,598 @@ remarks are given in Section .
 
 # Formal Data Analysis
 
-we fit a poisson model as our response is a count variable. We have
+We fit a Poisson model as our response is a count variable. We have
 excluded Region as a covariate because there was only one factor. We
-will start with a model that considers all the initial impressions that
-we get from the exploratory analysis. The model takes into account the
-interaction between Household.Head.Age and Type.of.Household,
+will start with a model that considers all the initial impressions from
+the exploratory analysis. The model takes into account the interaction
+between Household.Head.Age and Type.of.Household,
 log(Total.Food.Expenditure ) and Type.of.Household,
 log(Total.Household.Income) and Electricity, and Type.of.Household and
-Electricity. We have scaled down Total.Food.Expenditure,
+Electricity. We have scaled Total.Food.Expenditure,
 Total.Household.Income, and House.Floor.Area by taking log
 transformation to address the scalability issue in the design matrix.
-Here is the following model:-
+Here is the summary of the described model:-
 
-$$log(E(Total.Number.of.Family.members)) = + 1Household.Head.Sex
-+2Household.Head.Age + 3log(Total.Food.Expenditure ) +
+<table class="table table-striped table-hover table-condensed table-responsive" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<tbody>
+<tr>
+<td style="text-align:left;font-weight: bold;">
+Observations
+</td>
+<td style="text-align:right;">
+2122
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;">
+Dependent variable
+</td>
+<td style="text-align:right;">
+Total.Number.of.Family.members
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;">
+Type
+</td>
+<td style="text-align:right;">
+Generalized linear model
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;">
+Family
+</td>
+<td style="text-align:right;">
+poisson
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;">
+Link
+</td>
+<td style="text-align:right;">
+log
+</td>
+</tr>
+</tbody>
+</table>
+<table class="table table-striped table-hover table-condensed table-responsive" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<tbody>
+<tr>
+<td style="text-align:left;font-weight: bold;">
+𝛘²(25)
+</td>
+<td style="text-align:right;">
+951.61
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;">
+Pseudo-R² (Cragg-Uhler)
+</td>
+<td style="text-align:right;">
+0.37
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;">
+Pseudo-R² (McFadden)
+</td>
+<td style="text-align:right;">
+0.10
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;">
+AIC
+</td>
+<td style="text-align:right;">
+8256.28
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;">
+BIC
+</td>
+<td style="text-align:right;">
+8403.44
+</td>
+</tr>
+</tbody>
+</table>
+<table class="table table-striped table-hover table-condensed table-responsive" style="width: auto !important; margin-left: auto; margin-right: auto;border-bottom: 0;">
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+Est.
+</th>
+<th style="text-align:right;">
+S.E.
+</th>
+<th style="text-align:right;">
+z val.
+</th>
+<th style="text-align:right;">
+p
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;font-weight: bold;">
+(Intercept)
+</td>
+<td style="text-align:right;">
+-4.42
+</td>
+<td style="text-align:right;">
+0.67
+</td>
+<td style="text-align:right;">
+-6.61
+</td>
+<td style="text-align:right;">
+0.00
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;">
+Household.Head.SexMale
+</td>
+<td style="text-align:right;">
+0.20
+</td>
+<td style="text-align:right;">
+0.03
+</td>
+<td style="text-align:right;">
+6.54
+</td>
+<td style="text-align:right;">
+0.00
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;">
+Household.Head.Age
+</td>
+<td style="text-align:right;">
+-0.00
+</td>
+<td style="text-align:right;">
+0.00
+</td>
+<td style="text-align:right;">
+-0.60
+</td>
+<td style="text-align:right;">
+0.55
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;">
+Type.of.HouseholdSingle Family
+</td>
+<td style="text-align:right;">
+-0.87
+</td>
+<td style="text-align:right;">
+0.49
+</td>
+<td style="text-align:right;">
+-1.77
+</td>
+<td style="text-align:right;">
+0.08
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;">
+Type.of.HouseholdTwo or More Nonrelated Persons/Members
+</td>
+<td style="text-align:right;">
+-9.64
+</td>
+<td style="text-align:right;">
+12.14
+</td>
+<td style="text-align:right;">
+-0.79
+</td>
+<td style="text-align:right;">
+0.43
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;">
+log(Total.Food.Expenditure)
+</td>
+<td style="text-align:right;">
+0.54
+</td>
+<td style="text-align:right;">
+0.06
+</td>
+<td style="text-align:right;">
+9.81
+</td>
+<td style="text-align:right;">
+0.00
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;">
+log(Total.Household.Income)
+</td>
+<td style="text-align:right;">
+0.02
+</td>
+<td style="text-align:right;">
+0.06
+</td>
+<td style="text-align:right;">
+0.27
+</td>
+<td style="text-align:right;">
+0.79
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;">
+Electricity1
+</td>
+<td style="text-align:right;">
+2.09
+</td>
+<td style="text-align:right;">
+0.59
+</td>
+<td style="text-align:right;">
+3.57
+</td>
+<td style="text-align:right;">
+0.00
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;">
+log(House.Floor.Area)
+</td>
+<td style="text-align:right;">
+-0.05
+</td>
+<td style="text-align:right;">
+0.02
+</td>
+<td style="text-align:right;">
+-2.77
+</td>
+<td style="text-align:right;">
+0.01
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;">
+Number.of.bedrooms1
+</td>
+<td style="text-align:right;">
+0.10
+</td>
+<td style="text-align:right;">
+0.04
+</td>
+<td style="text-align:right;">
+2.31
+</td>
+<td style="text-align:right;">
+0.02
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;">
+Number.of.bedrooms2
+</td>
+<td style="text-align:right;">
+0.11
+</td>
+<td style="text-align:right;">
+0.04
+</td>
+<td style="text-align:right;">
+2.47
+</td>
+<td style="text-align:right;">
+0.01
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;">
+Number.of.bedrooms3
+</td>
+<td style="text-align:right;">
+0.10
+</td>
+<td style="text-align:right;">
+0.05
+</td>
+<td style="text-align:right;">
+1.84
+</td>
+<td style="text-align:right;">
+0.07
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;">
+Number.of.bedrooms4
+</td>
+<td style="text-align:right;">
+0.17
+</td>
+<td style="text-align:right;">
+0.07
+</td>
+<td style="text-align:right;">
+2.58
+</td>
+<td style="text-align:right;">
+0.01
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;">
+Number.of.bedrooms5
+</td>
+<td style="text-align:right;">
+0.25
+</td>
+<td style="text-align:right;">
+0.12
+</td>
+<td style="text-align:right;">
+2.07
+</td>
+<td style="text-align:right;">
+0.04
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;">
+Number.of.bedrooms6
+</td>
+<td style="text-align:right;">
+0.35
+</td>
+<td style="text-align:right;">
+0.19
+</td>
+<td style="text-align:right;">
+1.89
+</td>
+<td style="text-align:right;">
+0.06
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;">
+Number.of.bedrooms7
+</td>
+<td style="text-align:right;">
+0.43
+</td>
+<td style="text-align:right;">
+0.45
+</td>
+<td style="text-align:right;">
+0.94
+</td>
+<td style="text-align:right;">
+0.35
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;">
+House.Age
+</td>
+<td style="text-align:right;">
+-0.00
+</td>
+<td style="text-align:right;">
+0.00
+</td>
+<td style="text-align:right;">
+-3.59
+</td>
+<td style="text-align:right;">
+0.00
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;">
+Household.Head.Age:Type.of.HouseholdSingle Family
+</td>
+<td style="text-align:right;">
+-0.00
+</td>
+<td style="text-align:right;">
+0.00
+</td>
+<td style="text-align:right;">
+-1.65
+</td>
+<td style="text-align:right;">
+0.10
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;">
+Household.Head.Age:Type.of.HouseholdTwo or More Nonrelated
+Persons/Members
+</td>
+<td style="text-align:right;">
+0.01
+</td>
+<td style="text-align:right;">
+0.02
+</td>
+<td style="text-align:right;">
+0.86
+</td>
+<td style="text-align:right;">
+0.39
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;">
+Type.of.HouseholdSingle Family:log(Total.Food.Expenditure)
+</td>
+<td style="text-align:right;">
+0.03
+</td>
+<td style="text-align:right;">
+0.06
+</td>
+<td style="text-align:right;">
+0.49
+</td>
+<td style="text-align:right;">
+0.63
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;">
+Type.of.HouseholdTwo or More Nonrelated
+Persons/Members:log(Total.Food.Expenditure)
+</td>
+<td style="text-align:right;">
+0.92
+</td>
+<td style="text-align:right;">
+1.39
+</td>
+<td style="text-align:right;">
+0.66
+</td>
+<td style="text-align:right;">
+0.51
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;">
+Type.of.HouseholdSingle Family:log(Total.Household.Income)
+</td>
+<td style="text-align:right;">
+0.04
+</td>
+<td style="text-align:right;">
+0.05
+</td>
+<td style="text-align:right;">
+0.98
+</td>
+<td style="text-align:right;">
+0.33
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;">
+Type.of.HouseholdTwo or More Nonrelated
+Persons/Members:log(Total.Household.Income)
+</td>
+<td style="text-align:right;">
+-0.04
+</td>
+<td style="text-align:right;">
+0.79
+</td>
+<td style="text-align:right;">
+-0.05
+</td>
+<td style="text-align:right;">
+0.96
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;">
+log(Total.Household.Income):Electricity1
+</td>
+<td style="text-align:right;">
+-0.19
+</td>
+<td style="text-align:right;">
+0.05
+</td>
+<td style="text-align:right;">
+-3.63
+</td>
+<td style="text-align:right;">
+0.00
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;">
+Type.of.HouseholdSingle Family:Electricity1
+</td>
+<td style="text-align:right;">
+-0.21
+</td>
+<td style="text-align:right;">
+0.07
+</td>
+<td style="text-align:right;">
+-3.03
+</td>
+<td style="text-align:right;">
+0.00
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;">
+Type.of.HouseholdTwo or More Nonrelated Persons/Members:Electricity1
+</td>
+<td style="text-align:right;">
+-0.83
+</td>
+<td style="text-align:right;">
+0.82
+</td>
+<td style="text-align:right;">
+-1.01
+</td>
+<td style="text-align:right;">
+0.31
+</td>
+</tr>
+</tbody>
+<tfoot>
+<tr>
+<td style="padding: 0; " colspan="100%">
+<sup></sup> Standard errors: MLE
+</td>
+</tr>
+</tfoot>
+</table>
 
-\_i, \~\~\~\~ \_i N(0, ^2),$$
+We can observe a lot of insignificant variables in our initial model.
+However, before proceeding to the wald test to check the significance of
+each variable, we, firstly, looked for any potential outliers and
+checked whether assumptions are holding. We can notice that the deviance
+of the model(1266.23) is much less than chi-square(2203.62). There could
+be a case of underdispersion wherein the estimated variance is less than
+the expected mean. We can interpret the coefficients in such a situation
+but can’t rely on standard error as they are deflated.
 
-![](group_04_files/figure-gfm/model1-1.png)<!-- -->
+<div class="figure" style="text-align: center">
+
+<img src="group_04_files/figure-gfm/plot-1.png" alt="\label{fig:box} Simple linear fitting" width="68%" />
+<p class="caption">
+Simple linear fitting
+</p>
+
+</div>
 
     332 
     332 

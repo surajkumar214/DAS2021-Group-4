@@ -55,27 +55,8 @@ table(dataset4$Household.Head.Sex,dataset4$Electricity)
 
 # Formal Data Analysis {#sec:FDA}
 
-we fit a poisson model as our response is a count variable. We have excluded Region as  a covariate because there was only one factor. We will start with a model that considers all the initial impressions that we get from the exploratory analysis. The model takes into account the interaction between Household.Head.Age and Type.of.Household, log(Total.Food.Expenditure ) and Type.of.Household,  log(Total.Household.Income) and Electricity, and Type.of.Household and Electricity. We have scaled down Total.Food.Expenditure, Total.Household.Income, and House.Floor.Area by taking log transformation to address the scalability issue in the design matrix. Here is the following model:- 
+We fit a Poisson model as our response is a count variable. We have excluded Region as a covariate because there was only one factor. We will start with a model that considers all the initial impressions from the exploratory analysis. The model takes into account the interaction between Household.Head.Age and Type.of.Household, log(Total.Food.Expenditure ) and Type.of.Household,  log(Total.Household.Income) and Electricity, and Type.of.Household and Electricity. We have scaled Total.Food.Expenditure, Total.Household.Income, and House.Floor.Area by taking log transformation to address the scalability issue in the design matrix. Here is the summary of the described model:- 
 
-$$\widehat{\mbox{Total.Number.of.Family.members}} = \widehat{\alpha} +
- \widehat{\beta}_{\mbox{Household.Head.Sex }} \cdot \mathbb{I}_{\mbox{Household.Head.Sex }}(x) +
- \widehat{\beta}_{\mbox{ Household.Head.Age   *Type.of.Household }} +
- \widehat{\beta}_{\mbox{log(Total.Food.Expenditure ) * Type.of.Household }} +
- \widehat{\beta}_{\mbox{ log(Total.Household.Income) * Electricity }} +
- \widehat{\beta}_{\mbox{Type.of.Household  *Electricity }} +
- \widehat{\beta}_{\mbox{log(House.Floor.Area)}} +
- \widehat{\beta1}_{\mbox{Number.of.bedrooms}}+
- \widehat{\beta2}_{\mbox{Number.of.bedrooms}}+
- \widehat{\beta3}_{\mbox{Number.of.bedrooms}}+
- \widehat{\beta4}_{\mbox{Number.of.bedrooms}}+
- \widehat{\beta5}_{\mbox{Number.of.bedrooms}}+
- \widehat{\beta6}_{\mbox{Number.of.bedrooms}}+
- \widehat{\beta7}_{\mbox{Number.of.bedrooms}}+
- \widehat{\beta8}_{\mbox{Number.of.bedrooms}}+
- \widehat{\beta}_{\mbox{House.Age}}
- 
- 
- $$
 
 
 ```{r model1}
@@ -93,8 +74,13 @@ model1 <- glm(Total.Number.of.Family.members ~
                 House.Age                                                           
                                                  
                ,data = dataset4,family = "poisson")  # fitted the poisson model using glm
-
-
+model1 %>%
+  summ()
+  
+```
+We can observe a lot of insignificant variables in our initial model. However, before proceeding to the wald test to check the significance of each variable, we, firstly, looked for any potential outliers and checked whether assumptions are holding.  We can notice that the deviance of the model(`r round(deviance(model1),2)`) is much less than chi-square(`r round(qchisq(df = model1$df.residual,p = 0.95),2)`). There could be a case of underdispersion wherein the estimated variance is less than the expected mean. We can interpret the coefficients in such a situation but can't rely on standard error as they are deflated. 
+ 
+```{r plot, out.width = '68%', fig.align = "center", fig.cap = "\\label{fig:box} Simple linear fitting", fig.pos = 'H'}
 resp <- resid(model1, type = "pearson")
 resd <- resid(model1, type = "deviance")
 p1<- ggplot(model1, aes(sample = resp)) + geom_point(stat = "qq", color = "#7fc97f") +
@@ -109,7 +95,8 @@ grid.arrange(p1, p2, p3, nrow = 1)
 
 ```
 
- 
+
+
 
 
 ```{r}
