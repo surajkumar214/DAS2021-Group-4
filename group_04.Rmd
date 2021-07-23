@@ -11,6 +11,7 @@ fig_caption: yes
 ---
 
 ```{r setup, include=FALSE}
+#default command
 knitr::opts_chunk$set(echo = FALSE, eval = TRUE, warning = FALSE, message = FALSE, comment = NA)
 ```
 
@@ -28,21 +29,22 @@ library(broom)
 library(ggfortify)
 library(jtools)
 library(sjPlot)
-library(AER)
-library(car)
+library(AER) # for underdispersion test
+library(car) #for outlier test
 
 ```
 
 
 
 ```{r data,echo=FALSE,eval=TRUE}
+#read and stored the data in dataset4, remove the Region variable 
 dataset4<-read.csv("/home/suraj/Desktop/stats_folder/group_04.csv")
 dataset4<-dataset4%>%
   select(-Region)
+#changed all character column to factors. 
 dataset4[sapply(dataset4,is.character)]<-lapply(dataset4[sapply(dataset4,is.character)],as.factor)
-
+#converted interger electricity col into factor 
 dataset4$Electricity <-as.factor(dataset4$Electricity)
-#dataset4$Number.of.bedrooms <-as.factor(dataset4$Number.of.bedrooms)
 
 ```
 
@@ -62,20 +64,21 @@ We fit a Poisson model as our response is a count variable. We have excluded Reg
 
 
 ```{r model1}
-
+#fitted the glm poisson model with 5 potential interaction terms as mentioned earlier 
 model1 <- glm(Total.Number.of.Family.members ~ 
-                Household.Head.Sex                                                   +
+                Household.Head.Sex                                  +
                 
-                log(Household.Head.Age)*   Type.of.Household                        +
-                log(Total.Food.Expenditure ) * Type.of.Household                     +
-                log(Total.Household.Income) * Type.of.Household                      +
-               log(Total.Household.Income) * Electricity                            +
-                Type.of.Household*Electricity                                        +
-                log(House.Floor.Area)                                                +
-                Number.of.bedrooms                                                   +
+                log(Household.Head.Age)*   Type.of.Household        + 
+                log(Total.Food.Expenditure ) * Type.of.Household    +
+                log(Total.Household.Income) * Type.of.Household     +
+                log(Total.Household.Income) * Electricity           +
+                Type.of.Household*Electricity                       +
+                log(House.Floor.Area)                               +
+                Number.of.bedrooms                                  +
                 House.Age                                                           
                                                  
-               ,data = dataset4,family = "poisson")  # fitted the poisson model using glm
+               ,data = dataset4,family = "poisson")  
+#produced the model summary using pipeline summ command from jtools
 model1 %>%
   summ()
 
@@ -85,21 +88,26 @@ model1 %>%
 We can observe a lot of insignificant variables in our initial model. However, before proceeding to the wald test to check the significance of each variable, we, firstly, looked for any potential outliers and checked whether assumptions are holding.  We can notice that the deviance of the model(`r round(deviance(model1),2)`) is much less than chi-square(`r round(qchisq(df = model1$df.residual,p = 0.95),2)`). There could be a case of underdispersion wherein the estimated variance is less than the expected mean. We can interpret the coefficients in such a situation but can't rely on standard error as they are deflated. 
  
 ```{r plot, out.width = '68%', fig.align = "center", fig.cap = "\\label{fig:out} Outlier check", fig.pos = 'H'}
+#got the pearson residual 
 resp <-  model1 %>%
   resid(type = "pearson")
+#got the deviance residual 
 resd <- model1 %>%
   resid(type = "deviance")
+#qq plot for pearson residual 
 p1<-  model1 %>%
   ggplot( aes(sample = resp)) + geom_point(stat = "qq", color = "#7fc97f") +
   ylab("Pearson residuals")
+#qq plot for deviance residual 
 p2<- model1 %>%
   ggplot( aes(sample = resd)) + geom_point(stat = "qq", color = "#7fc97f") +
   ylab("Deviance residuals")
+# predicted vs residual for independece and constant variance checking. 
 p3<- model1  %>%
   ggplot( aes(x = predict(model1, type="link"), y =resd))+
   geom_point(col = "#7fc97f") +
   ylab("Deviance residuals") + xlab("Linear predictor")
-grid.arrange(p1, p2, p3, nrow = 1)  
+grid.arrange(p1, p2, p3, nrow = 1)  # to draw all images together using grid arrange
 
 
 ```
@@ -108,7 +116,7 @@ We have plotted Normal_qq_plot for Pearson and deviance residuals. The purpose o
 
 
 ```{r outlier}
-
+# outlier testing with outlierTest function from car library
  model1 %>%
   outlierTest() 
   
@@ -116,9 +124,10 @@ We have plotted Normal_qq_plot for Pearson and deviance residuals. The purpose o
 We have identified the outlier point having id 2033. However, addressing outlier is totally subjective. We try to fit the model again removing this outlier and check for the assumptions. 
 
 ```{r mod1}
+# remove the outlier
 dataset4 <- dataset4 %>%
     slice(-c(2033))
-
+# fitted the model again everything being as earlier 
 model1 <- glm(Total.Number.of.Family.members ~ 
                 Household.Head.Sex                                                   +
                 
@@ -135,35 +144,44 @@ model1 <- glm(Total.Number.of.Family.members ~
 ```
 
 ```{r plot1, out.width = '68%', fig.align = "center", fig.cap = "\\label{fig:assum} Assumptions checking", fig.pos = 'H'}
+#got the pearson residual 
 resp <-  model1 %>%
   resid(type = "pearson")
+#got the deviance residual 
 resd <- model1 %>%
   resid(type = "deviance")
+#qq plot for pearson residual 
 p1<-  model1 %>%
   ggplot( aes(sample = resp)) + geom_point(stat = "qq", color = "#7fc97f") +
   ylab("Pearson residuals")
+#qq plot for deviance residual 
 p2<- model1 %>%
   ggplot( aes(sample = resd)) + geom_point(stat = "qq", color = "#7fc97f") +
   ylab("Deviance residuals")
+# predicted vs residual for independece and constant variance checking. 
 p3<- model1  %>%
   ggplot( aes(x = predict(model1, type="link"), y =resd))+
   geom_point(col = "#7fc97f") +
   ylab("Deviance residuals") + xlab("Linear predictor")
-grid.arrange(p1, p2, p3, nrow = 1)  
+grid.arrange(p1, p2, p3, nrow = 1)  # to draw all images together using grid arrange
+
 ```
 From Figure \ref{fig:assum}, we can see some patterns in the residuals vs predicted value. It would be better to fit some quadratic terms in the explanatory variables. Residuals seem to be normally distributed with some heavy tails. Now, we proceed with the dispersion test as there has been some evidence of underdispersion. 
 
 ```{r plot2, out.width = '68%', fig.align = "center", fig.cap = "\\label{fig:disp} Assumptions checking", fig.pos = 'H'}
+# plot to check the distribution of residuals vs the expected value.  In poisson model mean is equal to #variance, but practically it is impossible to get. So we must check variance vs mean 
 model1 %>%
  ggplot( aes(x=log(fitted(model1)), y=log((dataset4$Total.Number.of.Family.members-fitted(model1))^2)))+
-  geom_point(col="#f46d43") +
+  geom_point(col="#f46d43") + # y axis is the log of square of residuals 
   geom_abline(slope=1, intercept=0, col="#a6d96a", size=1) +
   ylab(expression((y-hat(mu))^2)) + xlab(expression(hat(mu)))
 ```
 
 ```{r disp}
+#check for aplha parameter in dispersion, A negative value of alpha confirms underdispersion
+# dispersiontest is a function from AER library 
 dis <- model1 %>%
-dispersiontest( trafo = 1 ,alternative = c("less"))
+dispersiontest( trafo = 1 ,alternative = c("less")) # less option is to test for underdispersion
 dis
 ```
 The negative value of aplha (`r round(dis$estimate,2)`) is significant because the p_value for the hypothesis test is (`r round(dis$p.value,2)`). Figure \ref{fig:disp} displays the underdispersed variance. Therefore, we can't rely on Wald's test for inference in the above model.  Rather, we perform analysis with quasi-poisson model that adjusts variance for both overdispersion and underdispersion. We resort to F test and do step by step variable removal to choose the best fitting model.  
@@ -171,10 +189,12 @@ The negative value of aplha (`r round(dis$estimate,2)`) is significant because t
 
 
 ```{r drop1}
+# drop1 perform F test, gives the cost of removing each variable by comparing deviance 
+# if removing any variable has a cost, stop iterating and that is the final model itself. 
 drop <- model1 %>%
 drop1(test="F") %>%
-  kable(caption = '\\label{tab:drop1} Performing F test on the inital model') %>%
-kable_styling(latex_options = 'HOLD_position')
+  kable(caption = '\\label{tab:drop1} Performing F test on the inital model') %>% #kable to display in tabular form
+kable_styling(latex_options = 'HOLD_position') # to hold the middle position
 
 drop
 ```
@@ -183,6 +203,7 @@ In the table \ref{tab:drop1},log(Household.Head.Age):Type.of.Household, Type.of.
 
 
 ```{r mod3}
+# again fit the glm with removed interaction terms, rest remains the same 
 model2 <- glm(Total.Number.of.Family.members ~ 
                 Household.Head.Sex                                                   +
                 log( Household.Head.Age)*  Type.of.Household                             +
@@ -194,7 +215,7 @@ model2 <- glm(Total.Number.of.Family.members ~
                 House.Age                                                            +
                 Number.of.bedrooms                                  
                ,data = dataset4,family = "poisson")  # fitted the poisson model using glm
-
+# again checked for removal of vaible  using drop1 in pipeline
 drop <- model2 %>%
 drop1(test="F") %>%
   kable(caption = '\\label{tab:drop1} Performing F test on the inital model') %>%
@@ -211,7 +232,7 @@ The F test says that we can remove log(Household.Head.Age):Type.of.Household and
 
 
 ```{r mod4}
-
+# new model with removing another insignifact interaction term
 model3 <- glm(Total.Number.of.Family.members ~ 
                 Household.Head.Sex                                                   +
                 log(Household.Head.Age )                              +
@@ -224,7 +245,7 @@ model3 <- glm(Total.Number.of.Family.members ~
                 Number.of.bedrooms                                 
                 
                ,data = dataset4,family = "poisson")  # fitted the poisson model using glm
-
+# again performed drop
 drop <- model3 %>%
 drop1(test="F") %>%
   kable(caption = '\\label{tab:drop1} Performing F test on the inital model') %>%
@@ -236,11 +257,12 @@ drop
 ```
 Eventually, we reached to our final model that considers interactions between log(Total.Food.Expenditure):Type.of.Household , log(Total.Household.Income):Electricity, and Type.of.Household:Electricity  as significant. Now, we adjust the standard error using dispersion parameter, which is equivalent of fitting a quasipoission model.  
 ```{r final}
+# got the dispersion parameter
 X2 <- sum(resid(model3, type = "pearson")^2)
 dp <- X2 / model3$df.res
-dp
+dp #dp <1 meand underdispersion, while dp >1 means over dispersion
 model3 %>%
- summ( dispersion =dp)
+ summ( dispersion =dp) # equivalent of fitting a quasi poisson model, adjust the variance for dispersion. 
 
 
 
