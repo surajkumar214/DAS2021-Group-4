@@ -2,7 +2,12 @@
 title: "Group_04"
 author: "Suraj Kumar"
 date: "17/07/2021"
-output: github_document 
+output: 
+   github_document:
+   number_sections: yes 
+
+           
+fig_caption: yes
 ---
 
 ```{r setup, include=FALSE}
@@ -46,11 +51,7 @@ The Philippine government conducts surveys on household income and expenditure e
 
 # Exploratory Data Analysis {#sec:EDA}
 ```{r exp}
-table(dataset4$Household.Head.Sex,dataset4$Type.of.Household)
-table(dataset4$Number.of.bedrooms,dataset4$Type.of.Household)
-table(dataset4$Electricity,dataset4$Type.of.Household)
-table(dataset4$Electricity,dataset4$Number.of.bedrooms)
-table(dataset4$Household.Head.Sex,dataset4$Electricity)
+
 ```
 
 # Formal Data Analysis {#sec:FDA}
@@ -80,59 +81,40 @@ model1 %>%
 ```
 We can observe a lot of insignificant variables in our initial model. However, before proceeding to the wald test to check the significance of each variable, we, firstly, looked for any potential outliers and checked whether assumptions are holding.  We can notice that the deviance of the model(`r round(deviance(model1),2)`) is much less than chi-square(`r round(qchisq(df = model1$df.residual,p = 0.95),2)`). There could be a case of underdispersion wherein the estimated variance is less than the expected mean. We can interpret the coefficients in such a situation but can't rely on standard error as they are deflated. 
  
-```{r plot, out.width = '68%', fig.align = "center", fig.cap = "\\label{fig:box} Simple linear fitting", fig.pos = 'H'}
-resp <- resid(model1, type = "pearson")
-resd <- resid(model1, type = "deviance")
-p1<- ggplot(model1, aes(sample = resp)) + geom_point(stat = "qq", color = "#7fc97f") +
+```{r plot, out.width = '68%', fig.align = "center", fig.cap = "\\label{fig:out} Outlier check", fig.pos = 'H'}
+resp <-  model1 %>%
+  resid(type = "pearson")
+resd <- model1 %>%
+  resid(type = "deviance")
+p1<-  model1 %>%
+  ggplot( aes(sample = resp)) + geom_point(stat = "qq", color = "#7fc97f") +
   ylab("Pearson residuals")
-p2<- ggplot(model1, aes(sample = resd)) + geom_point(stat = "qq", color = "#7fc97f") +
+p2<- model1 %>%
+  ggplot( aes(sample = resd)) + geom_point(stat = "qq", color = "#7fc97f") +
   ylab("Deviance residuals")
-p3<- ggplot(model1, aes(x = predict(model1, type="link"), y =resd))+
+p3<- model1  %>%
+  ggplot( aes(x = predict(model1, type="link"), y =resd))+
   geom_point(col = "#7fc97f") +
   ylab("Deviance residuals") + xlab("Linear predictor")
 grid.arrange(p1, p2, p3, nrow = 1)  
 
 
 ```
+We have plotted Normal_qq_plot for Pearson and deviance residuals. The purpose of such plots is to identify any point that doesn't follow the straight line. We have also plotted deviance residuals vs. the fitted value to check the independence and identify any pattern in the residuals. From above Figure \ref{fig:out}, we can notice one potential outlier at the top of the qq_plot, and presence of heavy tails. So, our next step is to identify and remove the point and again fit the model. Let's run an Outlier test:- 
 
 
 
+```{r,outlier}
 
-
-```{r}
-
-#check overdispersion
-
-c_d = cooks.distance(model1)
-which.max(c_d)
-i_n = influence(model1)$hat # calculate the influence of data points
-which.max(i_n)
-
-ggplot(model1, aes(x=log(fitted(model1)), y=log((dataset4$Total.Number.of.Family.members-fitted(model1))^2)))+
-  geom_point(col="#f46d43") +
-  geom_abline(slope=1, intercept=0, col="#a6d96a", size=1) +
-  ylab(expression((y-hat(mu))^2)) + xlab(expression(hat(mu)))
-
-c_d = cooks.distance(model1)
-which.max(c_d)
-i_n = influence(model1)$hat # calculate the influence of data points
-which.max(i_n)
-
-
-
-autoplot(model1, which = 1:4)
-
-pred <- predict(model1, type = "response")
-stand.resid <- rstandard(model = model1, type = "pearson") # Standardised Pearson residuals
-par(mfrow=c(1,2))
-plot(x = pred, y = stand.resid, xlab = "Predicted count", ylab = "Standardised Pearson residuals",
-main = "Regular likelihood", ylim = c(-5,5))
-abline(h = c(-3, -2, 0, 2, 3), lty = "dotted", col = "red")
-
+ model1 %>%
+  outlierTest() 
+  
 ```
+We have identified the outlier point having id 2033. However, addressing outlier is totally subjective. We try to fit the model again removing this outlier and check for the assumptions. 
 
 ```{r}
-dataset4 <- dataset4[-2033,]
+dataset4 <- dataset4 %>%
+    slice(-c(2033))
 
 model1 <- glm(Total.Number.of.Family.members ~ 
                 Household.Head.Sex                                                   +
@@ -147,27 +129,44 @@ model1 <- glm(Total.Number.of.Family.members ~
                 House.Age                                                           
                                                  
                ,data = dataset4,family = "poisson") 
+```
 
-autoplot(model1,which = 1:4)
-
-
-
-resp <- resid(model1, type = "pearson")
-resd <- resid(model1, type = "deviance")
-p1<- ggplot(model1, aes(sample = resp)) + geom_point(stat = "qq", color = "#7fc97f") +
+```{r plot1, out.width = '68%', fig.align = "center", fig.cap = "\\label{fig:assum} Assumptions checking", fig.pos = 'H'}
+resp <-  model1 %>%
+  resid(type = "pearson")
+resd <- model1 %>%
+  resid(type = "deviance")
+p1<-  model1 %>%
+  ggplot( aes(sample = resp)) + geom_point(stat = "qq", color = "#7fc97f") +
   ylab("Pearson residuals")
-p2<- ggplot(model1, aes(sample = resd)) + geom_point(stat = "qq", color = "#7fc97f") +
+p2<- model1 %>%
+  ggplot( aes(sample = resd)) + geom_point(stat = "qq", color = "#7fc97f") +
   ylab("Deviance residuals")
-p3<- ggplot(model1, aes(x = predict(model1, type="link"), y =resd))+
+p3<- model1  %>%
+  ggplot( aes(x = predict(model1, type="link"), y =resd))+
   geom_point(col = "#7fc97f") +
   ylab("Deviance residuals") + xlab("Linear predictor")
-grid.arrange(p1, p2, p3, nrow = 1)
-#check overdispersion
-
-
-dispersiontest(model1, trafo = 1 ,alternative = c("less"))
-
+grid.arrange(p1, p2, p3, nrow = 1)  
 ```
+From Figure \ref{fig:assum}, we can see some patterns in the residuals. It would be better to fit some quadratic terms in the explanatory variables. Residuals seem to be normally distributed with some heavy tails. Now, we proceed with the dispersion test as there has been some evidence of underdispersion. 
+
+```{r plot1, out.width = '68%', fig.align = "center", fig.cap = "\\label{fig:disp} Assumptions checking", fig.pos = 'H'}
+model1 %>%
+ ggplot( aes(x=log(fitted(model1)), y=log((dataset4$Total.Number.of.Family.members-fitted(model1))^2)))+
+  geom_point(col="#f46d43") +
+  geom_abline(slope=1, intercept=0, col="#a6d96a", size=1) +
+  ylab(expression((y-hat(mu))^2)) + xlab(expression(hat(mu)))
+```
+
+```{r disp}
+dis <- model1 %>%
+dispersiontest( trafo = 1 ,alternative = c("less"))
+dis
+```
+The negative value of aplha (`r round(dis$estimate,2)`) is significant because the p_value for the hypothesis test is (`r round(dis$p.value,2)`). Figure \ref{fig:disp} displays the underdispersed variance. 
+Therefore, we can't rely on Wald's test for inference. 
+
+
 
 ```{r}
 drop1(model1,test="F")

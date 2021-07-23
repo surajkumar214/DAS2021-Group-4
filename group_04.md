@@ -24,37 +24,6 @@ remarks are given in Section .
 
 # Exploratory Data Analysis
 
-            
-             Extended Family Single Family Two or More Nonrelated Persons/Members
-      Female             151           210                                      1
-      Male               434          1321                                      5
-
-       
-        Extended Family Single Family Two or More Nonrelated Persons/Members
-      0              47           124                                      0
-      1             124           553                                      3
-      2             233           645                                      3
-      3             129           149                                      0
-      4              42            48                                      0
-      5               7            10                                      0
-      6               3             1                                      0
-      7               0             1                                      0
-
-       
-        Extended Family Single Family Two or More Nonrelated Persons/Members
-      0              67           295                                      1
-      1             518          1236                                      5
-
-       
-          0   1   2   3   4   5   6   7
-      0  53 196 102  12   0   0   0   0
-      1 118 484 779 266  90  17   4   1
-
-            
-                0    1
-      Female   58  304
-      Male    305 1455
-
 # Formal Data Analysis
 
 We fit a Poisson model as our response is a count variable. We have
@@ -643,30 +612,37 @@ but can’t rely on standard error as they are deflated.
 
 <div class="figure" style="text-align: center">
 
-<img src="group_04_files/figure-gfm/plot-1.png" alt="\label{fig:box} Simple linear fitting" width="68%" />
+<img src="group_04_files/figure-gfm/plot-1.png" alt="\label{fig:box} Outlier check" width="68%" />
 <p class="caption">
-Simple linear fitting
+Outlier check
 </p>
 
 </div>
 
-    332 
-    332 
+We have plotted Normal\_qq\_plot for Pearson and deviance residuals. The
+purpose of such plots is to identify any point that doesn’t follow the
+straight line. We have also plotted deviance residuals vs. the fitted
+value to check the independence and identify any pattern in the
+residuals. From above Figure , we can notice one potential outlier at
+the top of the qq\_plot. So, our next step is to identify and remove the
+point and again fit the model. Let’s run an Outlier test:-
 
-    212 
-    212 
+    No Studentized residuals with Bonferroni p < 0.05
+    Largest |rstudent|:
+         rstudent unadjusted p-value Bonferroni p
+    2033   4.0227         5.7535e-05      0.12197
 
-![](group_04_files/figure-gfm/unnamed-chunk-1-1.png)<!-- -->
+We have identified the outlier point having id 2033. We try to fit the
+model again removing this outlier andcheck for the assumptions.
 
-    332 
-    332 
+<div class="figure" style="text-align: center">
 
-    212 
-    212 
+<img src="group_04_files/figure-gfm/plot1-1.png" alt="\label{fig:assum} Assumptions checking" width="68%" />
+<p class="caption">
+Assumptions checking
+</p>
 
-![](group_04_files/figure-gfm/unnamed-chunk-1-2.png)<!-- -->![](group_04_files/figure-gfm/unnamed-chunk-1-3.png)<!-- -->
-
-![](group_04_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->![](group_04_files/figure-gfm/unnamed-chunk-2-2.png)<!-- -->
+</div>
 
 
         Underdispersion test
@@ -776,7 +752,7 @@ Simple linear fitting
           rstudent unadjusted p-value Bonferroni p
     1521 -3.463215         0.00053376           NA
 
-![](group_04_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+![](group_04_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
 
     [1] 0.6113809
 
