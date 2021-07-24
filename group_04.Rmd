@@ -87,7 +87,7 @@ model1 %>%
 ```
 We can observe a lot of insignificant variables in our initial model. However, before proceeding to the wald test to check the significance of each variable, we, firstly, looked for any potential outliers and checked whether assumptions are holding.  We can notice that the deviance of the model(`r round(deviance(model1),2)`) is much less than chi-square(`r round(qchisq(df = model1$df.residual,p = 0.95),2)`). So, there could be a case of underdispersion, wherein the estimated variance is less than the expected mean. We can interpret the coefficients in such a situation but can't rely on standard error as they are deflated. 
  
-```{r plot, out.width = '68%', fig.align = "center", fig.cap = "\\label{fig:out} Outlier check", fig.pos = 'H'}
+```{r plot, out.width = '68%', fig.align = "center", fig.cap = "\\label{fig:out} Outlier and Assumptions check", fig.pos = 'H'}
 #got the pearson residual 
 resp <-  model1 %>%
   resid(type = "pearson")
@@ -119,7 +119,8 @@ We have plotted Normal_qq_plot for Pearson and deviance residuals. The purpose o
 # outlier testing with outlierTest function from car library
  model1 %>%
   outlierTest() 
-
+```
+```{r cook, out.width = '68%', fig.align = "center", fig.cap = "\\label{fig:cook} Cook's distance", fig.pos = 'H'}
 #checking for cook's distance 
 cook <-cooks.distance(model1) 
 cook<- as.tibble(as.data.frame(cook))
@@ -151,7 +152,7 @@ model1 <- glm(Total.Number.of.Family.members ~
                ,data = dataset4,family = "poisson") 
 ```
 
-```{r plot1, out.width = '68%', fig.align = "center", fig.cap = "\\label{fig:assum} Assumptions checking", fig.pos = 'H'}
+```{r plot1, out.width = '68%', fig.align = "center", fig.cap = "\\label{fig:assum} Assumptions check", fig.pos = 'H'}
 #got the pearson residual 
 resp <-  model1 %>%
   resid(type = "pearson")
@@ -176,7 +177,7 @@ grid.arrange(p1, p2, p3, nrow = 1)  # to draw all images together using grid arr
 ```
 From Figure \ref{fig:assum}, we can see some patterns in the deviance residuals vs predicted value. That is because of different measurement of variance for the same output value.  It would be better to fit some quadratic terms in the explanatory variables. Residuals seem to be normally distributed with some heavy tails. Now, we proceed with the dispersion test as there has been some evidence of underdispersion. 
 
-```{r plot2, out.width = '68%', fig.align = "center", fig.cap = "\\label{fig:disp} Assumptions checking", fig.pos = 'H'}
+```{r plot2, out.width = '68%', fig.align = "center", fig.cap = "\\label{fig:disp} Underdispersion", fig.pos = 'H'}
 # plot to check the distribution of residuals vs the expected value.  In poisson model mean is equal to #variance, but practically it is impossible to get. So we must check variance vs mean 
 model1 %>%
  ggplot( aes(x=log(fitted(model1)), y=log((dataset4$Total.Number.of.Family.members-fitted(model1))^2)))+
@@ -276,7 +277,7 @@ model3 %>%
 
 ```
 We can see that standard error slightly rises up after adjusting with the dispersion parameter, while the coefficient terms remains the same. Still, the wald test is not very reliable, and there is no benefit of analyzing confidence intervals. The expected Total.Number.of.Family.members increase by `r round(exp(0.22),2)` if the head of the family is male. Also, if the Type.of.Family is single and Type.of.HouseholdTwo or More Nonrelated Persons/Members, the expectation decrease  by factor of `r      round(exp(-1.08),2)` and `r round(exp(-7.97),2)` against the Extended family. Moreover, if log(Total.Food.Expenditure) and log(Total.Household.Income) are increase by 1 unit, the estimated count of family members may increase by `r round(exp(0.51),2)`  and `r round(exp(0.04),2)` respectively. 
-log(Total.Household.Income) is insignificant might be due to Simpson's paradox effect that is influence of multi-colinearity. Beside it, if there is electricity available at home, the estimated member count may be higher by `r round(exp(2.08),2)`. Taking about number of bedrooms,  if there is 1 more unit extra bedroom, the estimated number of members increases by `r   round(exp(0.03),2)`. Conversely, 1 unit increase in log(house area) and 1 year increase in house age, reduce the estimated member count by `r  round(exp(-0.05),2)` and `r  round(-0.003804283 ,2)`. The age of the head also has negative association with with member count as higher the age, the count decreases by `r   round(exp(-0.07),2)` . There are some other significant interactions. For instance, if the type of household is single family, and log(foodexpenditure) is increased by 1 unit, then the estimated count increment rate will be multipled by `r  round(exp(0.09-1.08),2)` against Extended family. Beside it, if there is electricity at home, and log(income) is increased by 1 unit, the multiplying factor is `r  round(exp(-0.19+ 2.08) ,2)`. Also, if the family is single and there is electricity, the count of family members is estimated to change  by `r round(exp(-1.08 +2.08 + -0.20) ,2)`. 
+log(Total.Household.Income) is insignificant might be due to Simpson's paradox effect that is influence of multi-colinearity. Beside it, if there is electricity available at home, the estimated member count may be higher by `r round(exp(2.08),2)`. Taking about number of bedrooms,  if there is 1 more unit extra bedroom, the estimated number of members increases by `r   round(exp(0.03),2)`. Conversely, 1 unit increase in log(house area) and 1 year increase in house age, reduce the estimated member count by `r  round(exp(-0.05),2)` and `r  round(exp(-0.003804283) ,5)`. The age of the head also has negative association with with member count as higher the age, the count decreases by `r   round(exp(-0.07),2)` . There are some other significant interactions. For instance, if the type of household is single family, and log(foodexpenditure) is increased by 1 unit, then the estimated count increment rate will be multipled by `r  round(exp(0.09-1.08),2)` against Extended family. Beside it, if there is electricity at home, and log(income) is increased by 1 unit, the multiplying factor is `r  round(exp(-0.19+ 2.08) ,2)`. Also, if the family is single and there is electricity, the count of family members is estimated to change  by `r round(exp(-1.08 +2.08 + -0.20) ,2)`. 
 
 # Conclusions {#sec:Conc}
 The number of family members has positive association with food expenditure and family income. Also, Extended family is suppose to have higher number of family members than single and much greater than Nonrelated Persons/Members. A family headed by male will have higher count of family members than that of female. The estimated count of members also has positive association with the availability of bedrooms. However, as the house grow older, lesser people like to stay there. Also, availability of electricity enhances the number of family members.  

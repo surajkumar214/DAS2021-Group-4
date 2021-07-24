@@ -510,9 +510,9 @@ situation but can’t rely on standard error as they are deflated.
 
 <div class="figure" style="text-align: center">
 
-<img src="group_04_files/figure-gfm/plot-1.png" alt="\label{fig:out} Outlier check" width="68%" />
+<img src="group_04_files/figure-gfm/plot-1.png" alt="\label{fig:out} Outlier and Assumptions check" width="68%" />
 <p class="caption">
-Outlier check
+Outlier and Assumptions check
 </p>
 
 </div>
@@ -531,16 +531,25 @@ an Outlier test:-
          rstudent unadjusted p-value Bonferroni p
     2033 4.047992         5.1659e-05      0.10957
 
-![](group_04_files/figure-gfm/outlier-1.png)<!-- --> We have identified
-the outlier point having id 2033, while the point 1521 has high
-influence .However, addressing outlier is totally subjective. We try to
-fit the model removing outlier 2033 and check for the assumptions again.
+<div class="figure" style="text-align: center">
+
+<img src="group_04_files/figure-gfm/cook-1.png" alt="\label{fig:cook} Cook's distance" width="68%" />
+<p class="caption">
+Cook’s distance
+</p>
+
+</div>
+
+We have identified the outlier point having id 2033, while the point
+1521 has high influence .However, addressing outlier is totally
+subjective. We try to fit the model removing outlier 2033 and check for
+the assumptions again.
 
 <div class="figure" style="text-align: center">
 
-<img src="group_04_files/figure-gfm/plot1-1.png" alt="\label{fig:assum} Assumptions checking" width="68%" />
+<img src="group_04_files/figure-gfm/plot1-1.png" alt="\label{fig:assum} Assumptions check" width="68%" />
 <p class="caption">
-Assumptions checking
+Assumptions check
 </p>
 
 </div>
@@ -554,9 +563,9 @@ test as there has been some evidence of underdispersion.
 
 <div class="figure" style="text-align: center">
 
-<img src="group_04_files/figure-gfm/plot2-1.png" alt="\label{fig:disp} Assumptions checking" width="68%" />
+<img src="group_04_files/figure-gfm/plot2-1.png" alt="\label{fig:disp} Underdispersion" width="68%" />
 <p class="caption">
-Assumptions checking
+Underdispersion
 </p>
 
 </div>
@@ -1654,15 +1663,16 @@ home, the estimated member count may be higher by 8. Taking about number
 of bedrooms, if there is 1 more unit extra bedroom, the estimated number
 of members increases by 1.03. Conversely, 1 unit increase in log(house
 area) and 1 year increase in house age, reduce the estimated member
-count by 0.95 and 0. The age of the head also has negative association
-with with member count as higher the age, the count decreases by 0.93 .
-There are some other significant interactions. For instance, if the type
-of household is single family, and log(foodexpenditure) is increased by
-1 unit, then the estimated count increment rate will be multipled by
-0.37 against Extended family. Beside it, if there is electricity at
-home, and log(income) is increased by 1 unit, the multiplying factor is
-6.62. Also, if the family is single and there is electricity, the count
-of family members is estimated to change by 2.23.
+count by 0.95 and 0.9962. The age of the head also has negative
+association with with member count as higher the age, the count
+decreases by 0.93 . There are some other significant interactions. For
+instance, if the type of household is single family, and
+log(foodexpenditure) is increased by 1 unit, then the estimated count
+increment rate will be multipled by 0.37 against Extended family. Beside
+it, if there is electricity at home, and log(income) is increased by 1
+unit, the multiplying factor is 6.62. Also, if the family is single and
+there is electricity, the count of family members is estimated to change
+by 2.23.
 
 # Conclusions
 
