@@ -31,7 +31,7 @@ excluded Region as a covariate because there was only one factor. We
 will start with a model that considers all the initial impressions from
 the exploratory analysis. The model takes into account the interaction
 between log(Household.Head.Age) and Type.of.Household,
-log(Total.Food.Expenditure ) and Type.of.Household, and
+log(Total.Food.Expenditure ) and Type.of.Household,
 log(Total.Household.Income) and Electricity, and Type.of.Household and
 Electricity. We have scaled Total.Food.Expenditure,
 Total.Household.Income, Household.Head.Age, and House.Floor.Area by
@@ -503,10 +503,10 @@ We can observe a lot of insignificant variables in our initial model.
 However, before proceeding to the wald test to check the significance of
 each variable, we, firstly, looked for any potential outliers and
 checked whether assumptions are holding. We can notice that the deviance
-of the model(1280.03) is much less than chi-square(2209.77). There could
-be a case of underdispersion wherein the estimated variance is less than
-the expected mean. We can interpret the coefficients in such a situation
-but can’t rely on standard error as they are deflated.
+of the model(1280.03) is much less than chi-square(2209.77). So, there
+could be a case of underdispersion, wherein the estimated variance is
+less than the expected mean. We can interpret the coefficients in such a
+situation but can’t rely on standard error as they are deflated.
 
 <div class="figure" style="text-align: center">
 
@@ -531,9 +531,10 @@ an Outlier test:-
          rstudent unadjusted p-value Bonferroni p
     2033 4.047992         5.1659e-05      0.10957
 
-We have identified the outlier point having id 2033. However, addressing
-outlier is totally subjective. We try to fit the model again removing
-this outlier and check for the assumptions.
+![](group_04_files/figure-gfm/outlier-1.png)<!-- --> We have identified
+the outlier point having id 2033, while the point 1521 has high
+influence .However, addressing outlier is totally subjective. We try to
+fit the model removing outlier 2033 and check for the assumptions again.
 
 <div class="figure" style="text-align: center">
 
@@ -544,11 +545,12 @@ Assumptions checking
 
 </div>
 
-From Figure , we can see some patterns in the residuals vs predicted
-value. It would be better to fit some quadratic terms in the explanatory
-variables. Residuals seem to be normally distributed with some heavy
-tails. Now, we proceed with the dispersion test as there has been some
-evidence of underdispersion.
+From Figure , we can see some patterns in the deviance residuals vs
+predicted value. That is because of different measurement of variance
+for the same output value. It would be better to fit some quadratic
+terms in the explanatory variables. Residuals seem to be normally
+distributed with some heavy tails. Now, we proceed with the dispersion
+test as there has been some evidence of underdispersion.
 
 <div class="figure" style="text-align: center">
 
@@ -573,9 +575,9 @@ The negative value of aplha (-0.39) is significant because the p\_value
 for the hypothesis test is (0). Figure displays the underdispersed
 variance. Therefore, we can’t rely on Wald’s test for inference in the
 above model. Rather, we perform analysis with quasi-poisson model that
-adjusts variance for both overdispersion and underdispersion. We resort
-to F test and do step by step variable removal to choose the best
-fitting model.
+adjusts variance for underdispersion. We resort to F test and do step by
+step variable removal to choose the best fitting model. F test relies on
+AIC comparasion of different models:-
 
 <table class="table" style="margin-left: auto; margin-right: auto;">
 <caption>
@@ -809,7 +811,7 @@ Type.of.Household:Electricity
 In the table ,log(Household.Head.Age):Type.of.Household,
 Type.of.Household:log(Total.Food.Expenditure) and
 Type.of.Household:log(Total.Household.Income) can be eliminated without
-significantly hurting the model’s quality So, we firstly eliminate
+significantly hurting the model’s quality. So, we firstly eliminate
 variable Type.of.Household:log(Total.Household.Income) and check for F
 test again:-
 
@@ -1023,8 +1025,8 @@ Type.of.Household:Electricity
 </table>
 
 The F test says that we can remove
-log(Household.Head.Age):Type.of.Household and. So, repeat the same
-process until we reach all terms are significant.
+log(Household.Head.Age):Type.of.Household in the table . So, repeat the
+same process until we reach all terms are significant.
 
 <table class="table" style="margin-left: auto; margin-right: auto;">
 <caption>
@@ -1240,7 +1242,7 @@ between log(Total.Food.Expenditure):Type.of.Household ,
 log(Total.Household.Income):Electricity, and
 Type.of.Household:Electricity as significant. Now, we adjust the
 standard error using dispersion parameter, which is equivalent of
-fitting a quasipoission model.
+fitting a quasipoisson model.
 
     [1] 0.6141164
 
@@ -1635,49 +1637,50 @@ Type.of.HouseholdTwo or More Nonrelated Persons/Members:Electricity1
 </tfoot>
 </table>
 
-We can see that standard error slight rises up after adjusting with the
-dispersion parameter, while the intercept term remains the same. Still
-the wald test is not very reliable, and there is no benefit of drawing
-confidence intervals. The expected Total.Number.of.Family.members
-increase by 1.25 if the head of the family is male. Also, if the
-Type.of.Family is single and Type.of.HouseholdTwo or More Nonrelated
-Persons/Members, the expectation decrease by factor of 0.34 and 0
-against the Extended family. Moreover, if log(Total.Food.Expenditure)
-and log(Total.Household.Income) are increase by 1 unit, the estimated
-count of family members may increase by 1.67 and 1.04 respectively.
-log(Total.Household.Income) is insignificant might be due to Simpson’s
-paradox effect. Beside it, if there is electricity at home, the
-estimated count may increase by 8. Taking about number of bedrooms, if
-there is 1 more unit extra bedroom, the estimated number increases by
-1.03. Conversely, 1 unit increase in log(house area) and 1 year increase
-in house age, reduce the estimated count by 0.95 and 0. The effect of
-the head’s age is insignificant. There are some other significant
-interactions. For instance, if the type of household is single family,
-and log(foodexpenditure) is increased by 1 unit, then the estimated
-count increment will have higher rate by 1.82 against Extended family.
-Beside it, if there is electricity, and log(income) is increased by 1
-unit, the rate of increment of count increase by a factor of 6.62. Also,
-if the family is single and there is electricity, the count of family
-members is estimated to change by 2.23.
+We can see that standard error slightly rises up after adjusting with
+the dispersion parameter, while the coefficient terms remains the same.
+Still, the wald test is not very reliable, and there is no benefit of
+analyzing confidence intervals. The expected
+Total.Number.of.Family.members increase by 1.25 if the head of the
+family is male. Also, if the Type.of.Family is single and
+Type.of.HouseholdTwo or More Nonrelated Persons/Members, the expectation
+decrease by factor of 0.34 and 0 against the Extended family. Moreover,
+if log(Total.Food.Expenditure) and log(Total.Household.Income) are
+increase by 1 unit, the estimated count of family members may increase
+by 1.67 and 1.04 respectively. log(Total.Household.Income) is
+insignificant might be due to Simpson’s paradox effect that is influence
+of multi-colinearity. Beside it, if there is electricity available at
+home, the estimated member count may be higher by 8. Taking about number
+of bedrooms, if there is 1 more unit extra bedroom, the estimated number
+of members increases by 1.03. Conversely, 1 unit increase in log(house
+area) and 1 year increase in house age, reduce the estimated member
+count by 0.95 and 0. The age of the head also has negative association
+with with member count as higher the age, the count decreases by 0.93 .
+There are some other significant interactions. For instance, if the type
+of household is single family, and log(foodexpenditure) is increased by
+1 unit, then the estimated count increment rate will be multipled by
+0.37 against Extended family. Beside it, if there is electricity at
+home, and log(income) is increased by 1 unit, the multiplying factor is
+6.62. Also, if the family is single and there is electricity, the count
+of family members is estimated to change by 2.23.
 
 # Conclusions
 
 The number of family members has positive association with food
 expenditure and family income. Also, Extended family is suppose to have
-higher family members than single and much greater than Nonrelated
-Persons/Members. A family headed by male is estimated to have higher
-count of family members than that of female. The estimated count also
-has positive association with the availability of bedrooms. However, as
-the house grow older, less people would like to stay there. Also, more
-family members like to accommodate in house having electricity. Greater
-income and food expenditure are also positively associated with number
-of family members. Beside it, if electricity interacts with income and
-type of family and influence the rate parameter.
+higher number of family members than single and much greater than
+Nonrelated Persons/Members. A family headed by male will have higher
+count of family members than that of female. The estimated count of
+members also has positive association with the availability of bedrooms.
+However, as the house grow older, lesser people like to stay there.
+Also, availability of electricity enhances the number of family members.
 
 # Extention
 
-We will consider more appropirate models like Generalized poisson model,
+We will consider more appropriate models like Generalized poisson model,
 or Conway-Maxwell Poisson (COM-Poisson) Regression, which have less
-expected residual variance than the mean. We wil also attempt to apply
+expected residual variance than the mean. We will also attempt to apply
 quadratic model that address the slight curve in the deviance against
-fitted plot.
+fitted plot. Moreover, we can include more regions and use Linear Mixed
+models, which considers both fixed and random effect due to repeated
+observations from same entity.

@@ -119,9 +119,17 @@ We have plotted Normal_qq_plot for Pearson and deviance residuals. The purpose o
 # outlier testing with outlierTest function from car library
  model1 %>%
   outlierTest() 
-  
+
+#checking for cook's distance 
+cook <-cooks.distance(model1) 
+cook<- as.tibble(as.data.frame(cook))
+cook %>%
+  ggplot(aes(x = 1:2122,y = cook)) +
+  geom_point()+
+   ylab("Cook's Distance") + xlab("Index")
+
 ```
-We have identified the outlier point having id 2033. However, addressing outlier is totally subjective. We try to fit the model removing this outlier and check for the assumptions again. 
+We have identified the outlier point having id 2033, while the point `r which(cook > 0.1)[[1]] ` has high influence .However, addressing outlier is totally subjective. We try to fit the model removing  outlier 2033 and check for the assumptions again. 
 
 ```{r mod1}
 # remove the outlier using slice
@@ -271,7 +279,7 @@ We can see that standard error slightly rises up after adjusting with the disper
 log(Total.Household.Income) is insignificant might be due to Simpson's paradox effect that is influence of multi-colinearity. Beside it, if there is electricity available at home, the estimated member count may be higher by `r round(exp(2.08),2)`. Taking about number of bedrooms,  if there is 1 more unit extra bedroom, the estimated number of members increases by `r   round(exp(0.03),2)`. Conversely, 1 unit increase in log(house area) and 1 year increase in house age, reduce the estimated member count by `r  round(exp(-0.05),2)` and `r  round(-0.003804283 ,2)`. The age of the head also has negative association with with member count as higher the age, the count decreases by `r   round(exp(-0.07),2)` . There are some other significant interactions. For instance, if the type of household is single family, and log(foodexpenditure) is increased by 1 unit, then the estimated count increment rate will be multipled by `r  round(exp(0.09-1.08),2)` against Extended family. Beside it, if there is electricity at home, and log(income) is increased by 1 unit, the multiplying factor is `r  round(exp(-0.19+ 2.08) ,2)`. Also, if the family is single and there is electricity, the count of family members is estimated to change  by `r round(exp(-1.08 +2.08 + -0.20) ,2)`. 
 
 # Conclusions {#sec:Conc}
-The number of family members has positive association with food expenditure and family income. Also, Extended family is suppose to have higher family members than single and much greater than Nonrelated Persons/Members. A family headed by male is estimated to have higher count of family members than that of female. The estimated count also has positive association with the availability of bedrooms. However, as the house grow older, less people would like to stay there. Also, more family members like to accommodate in house having electricity. Greater income and food expenditure are also positively associated with number of family members. Beside it, if electricity interacts with income and type of family and influence the rate parameter.  
+The number of family members has positive association with food expenditure and family income. Also, Extended family is suppose to have higher number of family members than single and much greater than Nonrelated Persons/Members. A family headed by male will have higher count of family members than that of female. The estimated count of members also has positive association with the availability of bedrooms. However, as the house grow older, lesser people like to stay there. Also, availability of electricity enhances the number of family members.  
 
 # Extention {#sec:Ext}
 
