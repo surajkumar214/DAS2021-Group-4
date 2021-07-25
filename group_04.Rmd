@@ -1,8 +1,13 @@
 ---
 title: "Group_04"
-author: "Suraj Kumar"
-date: "17/07/2021"
+author: "QingZhang, Suraj Kumar, Xin Zhang, Xinyue Shu, Yao Xiao"
+date: "2021/7/18"
 output: github_document 
+
+number_sections: yes
+always_allow_html: true
+
+fig_caption: yes
 ---
 
 ```{r setup, include=FALSE}
@@ -41,7 +46,7 @@ dataset4$Number.of.bedrooms <-as.factor(dataset4$Number.of.bedrooms)
 ```
 
 # Introduction {#sec:Intro}
-The Philippine government conducts surveys on household income and expenditure every three years to understand the living conditions of residents. In some past studies, we found that some factors may affect the number of family members. This research studied 2122 families in Soccsksargen district and collected the data of total household income, total food expenditure, household head sex, household head age, type of household, total number of family members, house floor area, house age, number of bedrooms and electricity, the purpose is to find the relationship between the number of family members and other variables. This report focuses on a different analysis level through summaries, boxplots, and general linear model. Section consists of an exploratory data analysis of number of family members and explores the potential relationship between member numbers and other variables. Section contains the results from fitting a generalized linear model to the data, as well as the assessment of the model assumptions. Concluding remarks are given in Section .
+The Philippine government conducts surveys on household income and expenditure every three years to understand the living conditions of residents. In some past studies, we found that some factors may affect the number of family members. This research studied 2122 families in Soccsksargen district and collected the data of total household income, total food expenditure, household head sex, household head age, type of household, total number of family members, house floor area, house age, number of bedrooms and electricity, the purpose is to find the relationship between the number of family members and other variables. This report focuses on a different analysis level through summaries, boxplots, and generalized linear model. Section consists of an exploratory data analysis of number of family members and explores the potential relationship between member numbers and other variables. Section contains the results from fitting a generalized linear model to the data, as well as the assessment of the model assumptions. Concluding remarks are given in Section .
 
 
 # Exploratory Data Analysis {#sec:EDA}
