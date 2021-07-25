@@ -57,4 +57,6 @@ The data set contains 2122 observations with no missing value, and records a tot
 skim(dataset4)
 #produce summary statistics of all variables
 ```
+## Household Head Sex {#sec:HouseHoldSex}
 
+The number of family members in male-headed households is slightly scattered than female-headed households. Figure \ref{fig:Boxplot1} shows that there are 3 outliers in the data of female-headed households, and 7 outliers in the data of male-headed households. 
