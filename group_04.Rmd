@@ -1,18 +1,22 @@
 ---
-title: "Group_04"
-author: "Suraj Kumar"
-date: "17/07/2021"
-output: github_document 
+title: "Exploratory Data Analysis"
+author: "QingZhang, Suraj Kumar, Xin Zhang, Xinyue Shu, Yao Xiao"
+date: "2021/7/18"
+output: github_document
+
+number_sections: yes
+always_allow_html: true
+
+fig_caption: yes
+
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, eval = TRUE, warning = FALSE, message = FALSE, comment = NA)
+knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r libraries}
-#included all the necessary libraries
-
-library(tidyverse) 
+```{r,echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
+library(tidyverse)
 library(moderndive)
 library(skimr)
 library(kableExtra)
@@ -22,212 +26,665 @@ library(infer)
 library(broom)
 library(ggfortify)
 library(jtools)
-library(sjPlot)
 library(AER)
 library(car)
+library(janitor)
 ```
 
 
-
-```{r data,echo=FALSE,eval=TRUE}
-dataset4<-read.csv("/home/suraj/Desktop/stats_folder/group_04.csv")
+```{r dataset, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
+dataset4<-read.csv("D:/02 - Data Analytics/08 - Data Analysis Skills/GroupProject2/dataset4.csv")
+#loaded the dataset
 dataset4<-dataset4%>%
-  select(-Region)
+  select(-Region) #delete unnecessary variable
 dataset4[sapply(dataset4,is.character)]<-lapply(dataset4[sapply(dataset4,is.character)],as.factor)
-
-dataset4$Electricity <-as.factor(dataset4$Electricity)
-dataset4$Number.of.bedrooms <-as.factor(dataset4$Number.of.bedrooms)
-
+#modified character variable to factor
+dataset4["Electricity"]<-lapply(dataset4["Electricity"],as.factor)
+#modified Electricity variable to factor
 ```
 
 # Introduction {#sec:Intro}
 
-# Exploratory Data Analysis {#sec:EDA}
-```{r exp}
-table(dataset4$Household.Head.Sex,dataset4$Type.of.Household)
-table(dataset4$Number.of.bedrooms,dataset4$Type.of.Household)
-table(dataset4$Electricity,dataset4$Type.of.Household)
-table(dataset4$Electricity,dataset4$Number.of.bedrooms)
-table(dataset4$Household.Head.Sex,dataset4$Electricity)
+The society is composed of one family, and the study of the population of family members is of great significance to the population of the study area. Understanding the deciding factors that affect the number of family member numbers is helpful to understand the population situation in the area, predict future population development trends and make timely policy adjustments. The Philippine government conducts surveys on household income and expenditure every three years to understand the living conditions of residents, dataset comes from the FIES (Family Income and Expenditure Survey) recorded in the Philippines. 
+
+In some past studies, we found that some factors may affect the number of family members. This research studied 2122 families in Soccsksargen district and collected the data of total household income, total food expenditure, household head sex, household head age, type of household, total number of family members, house floor area, house age, number of bedrooms and electricity, the purpose is to find the relationship between the number of family members and other variables. 
+This report focuses on a different analysis level through summaries, boxplots, and general linear model. Section \ref{sec:EDA} consists of an exploratory data analysis of number of family members and explores the potential relationship between member numbers and other variables. Section \ref{sec:FDA} contains the results from fitting a generalized linear model to the data, as well as the assessment of the model assumptions. Concluding remarks are given in Section \ref{sec:Conc}.
+
+# Exploratory data analysis {#sec:EDA}
+The data set contains 2122 observations with no missing value, and records a total of 10 variables, including three categorical variables and seven numerical variables. \ref{tab:Summaries1} shows the general information of the data set, including mean, standard deviation, quartile, etc. For making it clearer, this part of the analysis will covertly analyze different categorical variables one by one.
+
+```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE,fig.cap="\\label{tab:summary} Summary Statistics of Data Set", fig.pos='H'}
+skim(dataset4)
+#produce summary statistics of all variables
+```
+
+## Household Head Sex {#sec:HouseHoldSex}
+
+The number of family members in male-headed households is slightly scattered than female-headed households. Figure \ref{fig:Boxplot1} shows that there are 3 outliers in the data of female-headed households, and 7 outliers in the data of male-headed households. 
+
+```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE, fig.align = "center", fig.cap = "\\label{fig:Boxplot1} Boxplot of family member numbers by household head sex", fig.pos = 'H'}
+ggplot(dataset4, aes(x =Household.Head.Sex , y = Total.Number.of.Family.members)) +
+geom_boxplot() +
+labs(x = "Household Head Sex", y = "Total Number of.Family members",title="Boxplot of family member numbers by household head sex")
+#Boxplot of the total number of family by sex
+```
+
+According to the average and quartiles provided in table \ref{tab:Summarise1}, households with male heads are more likely to have more members. The average of families members of male household head is 4.72, and the average of female head families is 3.63. The standard deviation of the number of members of male-headed households is 2.19, and the standard deviation of the number of members of female-headed households is 2.13, again confirming the conclusion drawn by the box plot that the number of members of male-headed households is slightly scattered, however, both kind of families have the value range of the number of members is the same (between 1 and 19).
+
+```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE,fig.align = "center", fig.cap="\\label{tab:Summarise1} Summary statistics on total number of family members by sex.",fig.pos='H'}
+dataset4%>%
+  group_by(Household.Head.Sex)%>%
+  summarise(n=n(),Mean=round(mean(Total.Number.of.Family.members),digits=2),St.Dev=round(sd(Total.Number.of.Family.members),digits = 2),Min=min(Total.Number.of.Family.members),Q1=quantile(Total.Number.of.Family.members,0.25),Median=median(Total.Number.of.Family.members,0.5),Q3=quantile(Total.Number.of.Family.members,0.75),Max=max(Total.Number.of.Family.members))%>%
+  kable(caption = '\\label{tab:Summarise1} Summary statistics on total number of family members by sex.')%>%
+  kable_styling(latex_options="hold_position")
+#summary statistics table on total number of family members by sex
+```
+Figure \ref{fig:Graphs1}  are used to show the relationship between the 6 numerical explanatory variables and the number of family members in the response variable when the gender of the head of the household is different. In order to better show the relationship between variables, we performed a logarithmic transformation (the left column is y~x, the right column is y~log(x)).
+
+When considerring the gender of the head of the household, the four variables of total household income, total food expenditure, house floor area and the number of bedrooms are positively correlated with the number of household members, at the same time, household head age and house age have weak negative relationships with member numbers.What's more, income may be interactive with household head sex.
+
+```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
+p1<-ggplot(dataset4, aes(x =Total.Household.Income , y = Total.Number.of.Family.members,color=Household.Head.Sex)) +
+  geom_jitter() +
+  geom_smooth(method = 'glm',se=F)+
+  labs(x = "Total.Household.Income", y = "Total.Number.of.Family members") 
+#Superimpose our best-fitting line onto our scatterplot for total household income and total number of family members by sex
+
+p2<-ggplot(dataset4, aes(x =log(Total.Household.Income), y=Total.Number.of.Family.members,color=Household.Head.Sex)) +
+  geom_jitter() +
+  geom_smooth(method = 'glm',se=F)+
+  labs(x = "log(Total.Household.Income)", y = "Total.Number.of.Family members")
+#Superimpose our best-fitting line onto our scatterplot for log(total household income) and total number of family by sex
+```
+
+```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
+p3<-ggplot(dataset4, aes(x =Total.Food.Expenditure , y = Total.Number.of.Family.members,color=Household.Head.Sex)) +
+  geom_jitter() +
+  geom_smooth(method = 'glm',se=F)+
+  labs(x = "Total.Food.Expenditure", y = "Total.Number.of.Family members")
+#Superimpose our best-fitting line onto our scatterplot for total food expenditure and total number of family members by sex
+
+p4<-ggplot(dataset4, aes(x =log(Total.Food.Expenditure) , y = Total.Number.of.Family.members,color=Household.Head.Sex)) +
+  geom_jitter() +
+  geom_smooth(method = 'glm',se=F)+
+  labs(x = "log(Total.Food.Expenditure)", y = "Total.Number.of.Family members")
+#Superimpose our best-fitting line onto our scatterplot for log(total food expenditure) and total number of family by sex
+```
+
+```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
+p5<-ggplot(dataset4, aes(x =Household.Head.Age , y = Total.Number.of.Family.members,color=Household.Head.Sex)) +
+  geom_jitter() +
+  geom_smooth(method = 'glm',se=F)+
+  labs(x = "Household.Head.Age", y = "Total.Number.of.Family members")
+#Superimpose our best-fitting line onto our scatterplot for household head age and total number of family members by sex
+
+p6<-ggplot(dataset4, aes(x =log(Household.Head.Age), y = Total.Number.of.Family.members,color=Household.Head.Sex)) +
+  geom_jitter() +
+  geom_smooth(method = 'glm',se=F)+
+  labs(x = "log(Household.Head.Age)", y = "Total.Number.of.Family members")
+#Superimpose our best-fitting line onto our scatterplot for log(total food expenditure) and total number of family by sex
+```
+
+```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
+p7<-ggplot(dataset4, aes(x =House.Floor.Area, y = Total.Number.of.Family.members,color=Household.Head.Sex)) +
+  geom_jitter() +
+  geom_smooth(method = 'glm',se=F)+
+  labs(x = "House.Floor.Area", y = "Total.Number.of.Family.members")
+#Superimpose our best-fitting line onto our scatterplot for house floor area and total number of family members by sex
+
+p8<-ggplot(dataset4, aes(x =log(House.Floor.Area), y = Total.Number.of.Family.members,color=Household.Head.Sex)) +
+  geom_jitter() +
+  geom_smooth(method = 'glm',se=F)+
+  labs(x = "log(House.Floor.Area)", y = "Total.Number.of.Family.members")
+#Superimpose our best-fitting line onto our scatterplot for log(house floor area) and total number of family by sex
+
+p9<-ggplot(dataset4, aes(x =sqrt(House.Floor.Area), y = Total.Number.of.Family.members,color=Household.Head.Sex)) +
+  geom_jitter() +
+  geom_smooth(method = 'glm',se=F)+
+  labs(x = "Square root of House Floor Area", y = "Total.Number.of.Family.members")
+#Superimpose our best-fitting line onto our scatterplot for sqrt(house floor area) and total number of family by sex
+```
+
+```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
+p10<-ggplot(dataset4, aes(x =House.Age, y = Total.Number.of.Family.members,color=Household.Head.Sex)) +
+  geom_jitter() +
+  geom_smooth(method = 'glm',se=F)+
+  labs(x = "House.Age", y = "Total.Number.of.Family.members")
+#Superimpose our best-fitting line onto our scatterplot for household head age and total number of family members by sex
+
+p11<-ggplot(dataset4, aes(x =log(House.Age), y = Total.Number.of.Family.members,color=Household.Head.Sex)) +
+  geom_jitter() +
+  geom_smooth(method = 'glm',se=F)+
+  labs(x = "log(House.Age)", y = "Total.Number.of.Family.members")
+#Superimpose our best-fitting line onto our scatterplot for log(household head age) and total number of family members by sex
+```
+
+```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
+p12<-ggplot(dataset4, aes(x =Number.of.bedrooms , y = Total.Number.of.Family.members,color=Household.Head.Sex)) +
+  geom_jitter() +
+  geom_smooth(method = 'lm',se=F)+
+  labs(x = "Number.of.bedrooms", y = "Total.Number.of.Family.members")
+#Superimpose our best-fitting line onto our scatterplot for Number of bedrooms and total number of family members by sex
+
+p13<-ggplot(dataset4, aes(x =log(Number.of.bedrooms) , y = Total.Number.of.Family.members,color=Household.Head.Sex)) +
+  geom_jitter() +
+  geom_smooth(method = 'glm',se=F)+
+  labs(x = "log(Number.of.bedrooms)", y = "Total.Number.of.Family.members")
+#Superimpose our best-fitting line onto our scatterplot for log(Number of bedrooms) and total number of family members by sex
+```
+
+```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE, fig.align = "center"}
+grid.arrange(p1,p2,p3,p4,ncol=2)
+grid.arrange(p5,p6,p7,p8,p9,ncol=2)
+```
+
+```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE,fig.align = "center", fig.cap = "\\label{fig:Graphs1} sctter plots of family member numbers by household head sex", fig.pos = 'H'}
+grid.arrange(p10,p11,p12,p13,ncol=2)
+#Scatterplots for each variable are laid out in two columns
+```
+
+## Type of Household {#sec:HouseHoldType}
+
+Judging intuitively from figure \ref{fig:Boxplot2}, we believe that the data of the Extended Family type is more widely distributed and has more outliers. The distribution of the number of members of the Two or More Nonrelated Persons/Members type has the smallest value range and no outliers. We think this may be due to the small number of observations of this type.
+In addition, we can see from the figure that the average family members of the Extended Family type are higher than the Single Family type, and roughly the same as the Two or More Nonrelated Persons/Members type.
+
+```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE,fig.align = "center",  fig.cap = "\\label{fig:Boxplot2} Boxplot of total numbers of family members by type of house", fig.pos = 'H'}
+ggplot(dataset4, aes(x =Type.of.Household , y = Total.Number.of.Family.members)) +
+geom_boxplot() +
+labs(x = "Type.of.Household", y = "Total Number of.Family members", title="Boxplot of total numbers of family members by type of hous")
+##Boxplot of the total number of family by type of household
+```
+
+There are three types of Household, Extended Family, Single Family, Two or More Nonrelated Persons/Members (Two or More Nonrelated Persons/Members type only accounts for a small part of observations). According to the table \ref{tab:Summarise2}, the single family type has the lowest average size of 4.07, and the extended family type has the largest average size of 5.73. The family size of Extended Family ranges from 2 to 19, which is more scattered than the other two types. This result is also logical from a literal point of view.
+
+```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
+dataset4%>%
+  group_by(Type.of.Household)%>%
+  summarise(n=n(),Mean=round(mean(Total.Number.of.Family.members),digits=2),St.Dev=round(sd(Total.Number.of.Family.members),digits = 2),Min=min(Total.Number.of.Family.members),Q1=quantile(Total.Number.of.Family.members,0.25),Median=median(Total.Number.of.Family.members,0.5),Q3=quantile(Total.Number.of.Family.members,0.75),Max=max(Total.Number.of.Family.members))%>%
+  kable(caption = '\\label{tab:Summarise2} Summary statistics on total number of family members by type of household.')%>%
+  kable_styling(latex_options="hold_position")
+##summary statistics table on total number of family members by type of household
+```
+Figure \ref{fig:Graphs2} contains 18 scatter plots, they are used to show the relationship between the 6 numerical explanatory variables and the number of family members in the response variable of different types of household in 3 different methods (by using raw data, logarithmic conversion, square root conversion to draw the plots).
+
+Total household income, total food expenditure have weak positive relationships with member numbers, while the rest of variables seem have no significant relationships with response variables.
+```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
+p14<-ggplot(dataset4, aes(x =Total.Household.Income , y = Total.Number.of.Family.members,color=Type.of.Household)) +
+  geom_jitter() +
+  geom_smooth(method = 'glm',se=F)+
+  labs(x = "Total.Household.Income", y = "Total.Number.of.Family members")
+#Superimpose our best-fitting line onto our scatterplot for total household income and total number of family members by type of household
+
+p15<-ggplot(dataset4, aes(x =log(Total.Household.Income) , y = Total.Number.of.Family.members,color=Type.of.Household)) +
+  geom_jitter() +
+  geom_smooth(method = 'glm',se=F)+
+  labs(x = "log(Total.Household.Income)", y = "Total.Number.of.Family members")
+#Superimpose our best-fitting line onto our scatterplot for log(total household income) and total number of family members by type of household
+```
+
+```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
+p16<-ggplot(dataset4, aes(x =Total.Food.Expenditure , y = Total.Number.of.Family.members,color=Type.of.Household)) +
+  geom_jitter() +
+  geom_smooth(method = 'glm',se=F)+
+  labs(x = "Total.Food.Expenditure", y = "Total.Number.of.Family members")
+#Superimpose our best-fitting line onto our scatterplot for total food expenditure and total number of family members by type of household
+
+p17<-ggplot(dataset4, aes(x =log(Total.Food.Expenditure) , y = Total.Number.of.Family.members,color=Type.of.Household)) +
+  geom_jitter() +
+  geom_smooth(method = 'glm',se=F)+
+  labs(x = "log(Total.Food.Expenditure)", y = "Total.Number.of.Family members")
+#Superimpose our best-fitting line onto our scatterplot for log(total food expenditure) and total number of family members by type of household
+```
+
+```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
+p18<-ggplot(dataset4, aes(x =Household.Head.Age , y = Total.Number.of.Family.members,color=Type.of.Household)) +
+  geom_jitter() +
+  geom_smooth(method = 'glm',se=F)+
+  labs(x = "Household.Head.Age", y = "Total.Number.of.Family members")
+#Superimpose our best-fitting line onto our scatterplot for household head age and total number of family members by type of household
+
+p19<-ggplot(dataset4, aes(x =log(Household.Head.Age) , y = Total.Number.of.Family.members,color=Type.of.Household)) +
+  geom_jitter() +
+  geom_smooth(method = 'glm',se=F)+
+  labs(x = "log(Household.Head.Age)", y = "Total.Number.of.Family members")
+#Superimpose our best-fitting line onto our scatterplot for log(household head age) and total number of family members by type of household
+```
+
+```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
+p20<-ggplot(dataset4, aes(x =House.Floor.Area, y = Total.Number.of.Family.members,color=Type.of.Household)) +
+  geom_jitter() +
+  geom_smooth(method = 'glm',se=F)+
+  labs(x = "House.Floor.Area", y = "Total.Number.of.Family.members")
+#Superimpose our best-fitting line onto our scatterplot for household floor area and total number of family members by type of household
+
+p21<-ggplot(dataset4, aes(x =log(House.Floor.Area), y = Total.Number.of.Family.members,color=Type.of.Household)) +
+  geom_jitter() +
+  geom_smooth(method = 'glm',se=F)+
+  labs(x = "log(House.Floor.Area)", y = "Total.Number.of.Family.members")
+#Superimpose our best-fitting line onto our scatterplot for log(household floor area) and total number of family members by type of household
+
+p22<-ggplot(dataset4, aes(x = sqrt(House.Floor.Area) , y = sqrt(Total.Number.of.Family.members),color=Type.of.Household)) +
+  geom_jitter() +
+  geom_smooth(method = 'glm',se=F)+
+  labs(x = "square root of House.Floor.Area", y = "square root of  Total.Number.of.Family members")
+##Superimpose our best-fitting line onto our scatterplot for log(household floor area) and total number of family members by type of household
+```
+
+```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
+p23<-ggplot(dataset4, aes(x =House.Age , y = Total.Number.of.Family.members,color=Type.of.Household)) +
+  geom_jitter() +
+  geom_smooth(method = 'glm',se=F)+
+  labs(x = "House.Age", y  = "Total.Number.of.Family.members")
+#Superimpose our best-fitting line onto our scatterplot for house age and total number of family members by type of household
+
+p24<-ggplot(dataset4, aes(x =log(House.Age) , y = Total.Number.of.Family.members,color=Type.of.Household)) +
+  geom_jitter() +
+  geom_smooth(method = 'glm',se=F)+
+  labs(x = "log(House.Age)", y = "Total.Number.of.Family.members")
+#Superimpose our best-fitting line onto our scatterplot for log(house age) and total number of family members by type of household
+```
+
+```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
+p25<-ggplot(dataset4, aes(x =Number.of.bedrooms , y = Total.Number.of.Family.members,color=Type.of.Household)) +
+  geom_jitter() +
+  geom_smooth(method = 'glm',se=F)+
+  labs(x = "Number.of.bedrooms", y = "Total.Number.of.Family.members")
+#Superimpose our best-fitting line onto our scatterplot for number of bedrooms and total number of family members by type of household
+
+p26<-ggplot(dataset4, aes(x =log(Number.of.bedrooms) , y = Total.Number.of.Family.members,color=Type.of.Household)) +
+  geom_jitter() +
+  geom_smooth(method = 'glm',se=F)+
+  labs(x = "log(Number.of.bedrooms)", y = "Total.Number.of.Family.members")
+#Superimpose our best-fitting line onto our scatterplot for log(number of bedrooms) and total number of family members by type of household
+```
+
+```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE, fig.align = "center"}
+grid.arrange(p14,p15,ncol=1)
+grid.arrange(p16,p17,ncol=1)
+grid.arrange(p18,p19,ncol=1)
+grid.arrange(p20,p21,p22,ncol=1)
+grid.arrange(p23,p24,ncol=1)
+```
+
+```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE,fig.align = "center", fig.cap = "\\label{fig:Graphs2} sctter plots of family member numbers by type of household", fig.pos = 'H'}
+grid.arrange(p25,p26,ncol=1)
+# Make the scatter plots arrangement more compact.
+```
+
+## Electricity
+
+According to figure \ref{fig:Boxplot3}, whether the family is powered on has little effect on the average and distribution range of the number of family members. 4 and 6 outliers appear in unpowered and power-on conditions respectively.
+
+```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE,fig.align = "center", fig.cap = "\\label{fig:Boxplot3} Boxplot of family member numbers by electricity", fig.pos = 'H'}
+ggplot(dataset4, aes(x =Electricity, y = Total.Number.of.Family.members)) +
+geom_boxplot() +
+labs(x = "Electricity", y = "Total Number of.Family members", title="Boxplot of family member numbers by electricity")
+#Boxplot of the total number of family by electricity
+```
+Table \ref{tab:Summaries3} shows the summary statistics on the family member numbers and electricity of all observations, and there are 363 families has no electricity while 1759 families has electricity.The average member number of families has electricity is 4.53 which is almost the same as those with no electrity (4.56), and distributions of two conditions are really similar.
+
+```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
+dataset4%>%
+  group_by(Electricity)%>%
+  summarise(n=n(),Mean=round(mean(Total.Number.of.Family.members),digits=2),St.Dev=round(sd(Total.Number.of.Family.members),digits = 2),Min=min(Total.Number.of.Family.members),Q1=quantile(Total.Number.of.Family.members,0.25),Median=median(Total.Number.of.Family.members,0.5),Q3=quantile(Total.Number.of.Family.members,0.75),Max=max(Total.Number.of.Family.members))%>%
+  kable(caption = '\\label{tab:Summaries3} Summary statistics on total number of family members by Electricity.')%>%
+  kable_styling(latex_options="hold_position")
+#summary statistics table on total number of family members by electricity
+```
+Figure \ref{fig:Graphs3} scatter plots are used to show the relationship between the 6 numerical explanatory variables and the number of family members in the response variable when considering whether the family is powered. The left column is scatter plots of response variables vs explanatory variables, and the right column is scatter plots of response variables vs log(explanatory variables).
+
+Total household income, total food expenditure, house floor area and the number of bedrooms are positively correlated with the number of household members, at the same time, household head age and house age have weak negative relationships with member numbers. What else, we consider that there may be interactions between income and electricity, food expenditure and electricity, household head age and electricity, bedrooms numbers and electricity.
+```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
+p27<-ggplot(dataset4, aes(x =Total.Household.Income , y = Total.Number.of.Family.members,color=Electricity)) +
+  geom_jitter() +
+  geom_smooth(method = 'glm',se=F)+
+  labs(x = "Total.Household.Income", y = "Total.Number.of.Family members")
+#Superimpose our best-fitting line onto our scatterplot for total household income and total number of family members by electricity
+
+p28<-ggplot(dataset4, aes(x =log(Total.Household.Income), y = Total.Number.of.Family.members,color=Electricity)) +
+  geom_jitter() +
+  geom_smooth(method = 'glm',se=F)+
+  labs(x = "log(Total.Household.Income)", y = "Total.Number.of.Family members")
+#Superimpose our best-fitting line onto our scatterplot for log(total household income) and total number of family members by electricity
+```
+
+```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
+p29<-ggplot(dataset4, aes(x =Total.Food.Expenditure , y = Total.Number.of.Family.members,color=Electricity)) +
+  geom_jitter() +
+  geom_smooth(method = 'glm',se=F)+
+  labs(x = "Total.Food.Expenditure", y = "Total.Number.of.Family members")
+#Superimpose our best-fitting line onto our scatterplot for total food expenditure and total number of family members by electricity
+
+p30<-ggplot(dataset4, aes(x =log(Total.Food.Expenditure), y = Total.Number.of.Family.members,color=Electricity)) +
+  geom_jitter() +
+  geom_smooth(method = 'glm',se=F)+
+  labs(x = "log(Total.Food.Expenditure)", y = "Total.Number.of.Family members")
+#Superimpose our best-fitting line onto our scatterplot for log(total food expenditure) and total number of family members by electricity
+```
+
+```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
+p31<-ggplot(dataset4, aes(x =Household.Head.Age , y = Total.Number.of.Family.members,color=Electricity)) +
+  geom_jitter() +
+  geom_smooth(method = 'glm',se=F)+
+  labs(x = "Household.Head.Age", y = "Total.Number.of.Family members")
+#Superimpose our best-fitting line onto our scatterplot for household head age and total number of family members by electricity
+
+p32<-ggplot(dataset4, aes(x =log(Household.Head.Age), y = Total.Number.of.Family.members,color=Electricity)) +
+  geom_jitter() +
+  geom_smooth(method = 'glm',se=F)+
+  labs(x = "log(Household.Head.Age)", y = "Total.Number.of.Family members")
+#Superimpose our best-fitting line onto our scatterplot for log(household head age) and total number of family members by electricity
+```
+
+```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
+p33<-ggplot(dataset4, aes(x =House.Floor.Area, y = Total.Number.of.Family.members,color=Electricity)) +
+  geom_jitter() +
+  geom_smooth(method = 'glm',se=F)+
+  labs(x = "House.Floor.Area", y = "Total.Number.of.Family.members")
+#Superimpose our best-fitting line onto our scatterplot for house floor area and total number of family members by electricity
+
+p34<-ggplot(dataset4, aes(x =log(House.Floor.Area), y = Total.Number.of.Family.members,color=Electricity)) +
+  geom_jitter() +
+  geom_smooth(method = 'glm',se=F)+
+  labs(x = "log(House.Floor.Area)", y = "Total.Number.of.Family.members")
+#Superimpose our best-fitting line onto our scatterplot for log(house floor area) and total number of family members by electricity
+
+p35<-ggplot(dataset4, aes(x =sqrt(House.Floor.Area), y = Total.Number.of.Family.members,color=Electricity)) +
+  geom_jitter() +
+  geom_smooth(method = 'glm',se=F)+
+  labs(x = "Sqaure Root House.Floor.Area)", y = "Total.Number.of.Family.members")
+#Superimpose our best-fitting line onto our scatterplot for sqrt(house floor area) and total number of family members by electricity
+```
+
+```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
+p36<-ggplot(dataset4, aes(x =House.Age , y = Total.Number.of.Family.members,color=Electricity)) +
+  geom_jitter() +
+  geom_smooth(method = 'glm',se=F)+
+  labs(x = "House.Age", y = "Total.Number.of.Family.members")
+#Superimpose our best-fitting line onto our scatterplot for house age and total number of family members by electricity
+
+p37<-ggplot(dataset4, aes(x =log(House.Age), y = Total.Number.of.Family.members,color=Electricity)) +
+  geom_jitter() +
+  geom_smooth(method = 'glm',se=F)+
+  labs(x = "log(House.Age)", y = "Total.Number.of.Family.members")
+#Superimpose our best-fitting line onto our scatterplot for log(house age) and total number of family members by electricity
+```
+
+```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
+p38<-ggplot(dataset4, aes(x =Number.of.bedrooms , y = Total.Number.of.Family.members,color=Electricity)) +
+  geom_jitter() +
+  geom_smooth(method = 'lm',se=F)+
+  labs(x = "Number.of.bedrooms", y = "Total.Number.of.Family.members")
+#Superimpose our best-fitting line onto our scatterplot for number of bedrooms and total number of family members by electricity
+
+p39<-ggplot(dataset4, aes(x =log(Number.of.bedrooms), y = Total.Number.of.Family.members,color=Electricity)) +
+  geom_jitter() +
+  geom_smooth(method = 'glm',se=F)+
+  labs(x = "log(Number.of.bedrooms)", y = "Total.Number.of.Family.members")
+#Superimpose our best-fitting line onto our scatterplot for log(number of bedrooms) and total number of family members by electricity
+```
+
+```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE, fig.align = "center"}
+grid.arrange(p27,p28,p29,p30,ncol=2)
+grid.arrange(p31,p32,p33,p34,p35,ncol=2)
+```
+
+```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE,fig.align = "center", fig.cap = "\\label{fig:Graphs3} Sctter plots of family member numbers by electricity", fig.pos = 'H'}
+grid.arrange(p36,p37,p38,p39,ncol=2)
+#Adjust the scatter plots into two columns to make the arrangement more compact
+```
+
+Correlations of variables are calculated to check whether there are multicollinearity between variables. From graph \ref{fig:matrix} we can draw a preliminary conclusion that multicollinearity exists in the data.
+1. Total.Food.Expenditure, House.Floor.Area and Number.of.bedrooms have a weak collinearity with Total.Household.Income (The correlations are respectively 0.586, 0.379 and 0.424);
+2. Number.of.bedrooms has a weak collinearity with Total.Food.Expenditure (correlation is 0.407), House.Age has a weak collinearity with Total.Food.Expenditure (correlation is 0.322)
+3. Number.of.bedrooms has a weak collinearity with House.Floor.Area (correlation is 0.426).
+
+```{r matrix, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE, fig.cap = "\\label{fig:matrix} Matrix of plots with data set", fig.pos = 'H'}
+data<-dataset4%>%
+  select(-c(Household.Head.Sex,Type.of.Household,Electricity))
+ggpairs(data)
+# Find out the coorelation between variables, and consider whether there are multicollinearities.
+```
+
+The proportion of female-headed households being extended is higher than that of male-headed households (41.7% and 24.7%, respectively), and male-headed households accounted for 75.1%, accounting for the main part.
+
+```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE,fig.cap = "\\label{tab:SexType}"}
+dataset4 %>%
+  tabyl(Type.of.Household,Household.Head.Sex) %>%
+  adorn_percentages() %>%
+  adorn_pct_formatting() %>%
+  adorn_ns()
+#Used to calculate the family numbers and proportions of different household head sex and different types of houses
+```
+The vast majority of households are electrified, and the electrification rates of male and female households both exceed 82%, and the difference is no more than 2%. Therefore, it seems that there is no obvious relationship between the gender of different household heads and whether they are electrified.
+
+```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE,fig.cap = "\\label{tab:SexElectricity}"}
+dataset4 %>%
+  tabyl(Household.Head.Sex,Electricity) %>%
+  adorn_percentages() %>%
+  adorn_pct_formatting() %>%
+  adorn_ns()
+# Used to calculate the family numbers and proportions of with or without electricity and different household head genders
+```
+The majority of households have electricity. The proportion of large families with electricity is 88.5%, which is nearly 8% higher than that of single families.
+
+```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE,fig.cap = "\\label{tab:TypeElectricity}"}
+dataset4 %>%
+  tabyl(Type.of.Household,Electricity) %>%
+  adorn_percentages() %>%
+  adorn_pct_formatting() %>%
+  adorn_ns()
+#Used to calculate the family numbers and proportions of with or without electricity and different types of houses
 ```
 
 # Formal Data Analysis {#sec:FDA}
 
-we fit a poisson model as our response is a count variable. We have excluded Region as  a covariate because there was only one factor. 
+We fit a Poisson model as our response is a count variable. We have excluded Region as a covariate because there was only one factor. We will start with a model that considers all the initial impressions from the exploratory analysis. The model takes into account the interaction between log(Household.Head.Age) and Type.of.Household, log(Total.Food.Expenditure ) and Type.of.Household,   log(Total.Household.Income) and Electricity, and  Type.of.Household  and Electricity. We have scaled Total.Food.Expenditure, Total.Household.Income, Household.Head.Age, and House.Floor.Area by taking log transformation to address the scalability issue in the design matrix. Here is the summary of the described model:- 
+
+
 
 ```{r model1}
-
+#fitted the glm poisson model with 5 potential interaction terms as mentioned earlier 
 model1 <- glm(Total.Number.of.Family.members ~ 
-                Household.Head.Sex                                                   +
+                Household.Head.Sex                                  +
                 
-                Household.Head.Age   *Type.of.Household                              +
-                log(Total.Food.Expenditure ) * Type.of.Household                     +
-                log(Total.Household.Income) * Type.of.Household                      +
-                log(Total.Household.Income) * Electricity                            +
-                Type.of.Household  *Electricity                                      +
-                log(House.Floor.Area)                                                +
-                Number.of.bedrooms                                                   +
+                log(Household.Head.Age)*   Type.of.Household        + 
+                log(Total.Food.Expenditure ) * Type.of.Household    +
+                log(Total.Household.Income) * Type.of.Household     +
+                log(Total.Household.Income) * Electricity           +
+                Type.of.Household*Electricity                       +
+                log(House.Floor.Area)                               +
+                Number.of.bedrooms                                  +
                 House.Age                                                           
                                                  
-               ,data = dataset4,family = "poisson")  # fitted the poisson model using glm
-
-
-resp <- resid(model1, type = "pearson")
-resd <- resid(model1, type = "deviance")
-p1<- ggplot(model1, aes(sample = resp)) + geom_point(stat = "qq", color = "#7fc97f") +
+               ,data = dataset4,family = "poisson")  
+#produced the model summary using pipeline summ command from jtools
+model1 %>%
+  summ()
+ 
+  
+```
+We can observe a lot of insignificant variables in our initial model. However, before proceeding to the wald test to check the significance of each variable, we, firstly, looked for any potential outliers and checked whether assumptions are holding.  We can notice that the deviance of the model(`r round(deviance(model1),2)`) is much less than chi-square(`r round(qchisq(df = model1$df.residual,p = 0.95),2)`). So, there could be a case of underdispersion, wherein the estimated variance is less than the expected mean. We can interpret the coefficients in such a situation but can't rely on standard error as they are deflated. 
+ 
+```{r plot, out.width = '68%', fig.align = "center", fig.cap = "\\label{fig:out} Outlier and Assumptions check", fig.pos = 'H'}
+#got the pearson residual 
+resp <-  model1 %>%
+  resid(type = "pearson")
+#got the deviance residual 
+resd <- model1 %>%
+  resid(type = "deviance")
+#qq plot for pearson residual for normal distribution of residuals checking 
+p1<-  model1 %>%
+  ggplot( aes(sample = resp)) + geom_point(stat = "qq", color = "#7fc97f") +
   ylab("Pearson residuals")
-p2<- ggplot(model1, aes(sample = resd)) + geom_point(stat = "qq", color = "#7fc97f") +
+#qq plot for deviance residual for normal distribution of residuals checking
+p2<- model1 %>%
+  ggplot( aes(sample = resd)) + geom_point(stat = "qq", color = "#7fc97f") +
   ylab("Deviance residuals")
-p3<- ggplot(model1, aes(x = predict(model1, type="link"), y =resd))+
+# predicted vs residual for independence and constant variance checking. 
+p3<- model1  %>%
+  ggplot( aes(x = predict(model1, type="link"), y =resd))+
   geom_point(col = "#7fc97f") +
   ylab("Deviance residuals") + xlab("Linear predictor")
-grid.arrange(p1, p2, p3, nrow = 1)  
-
-
+grid.arrange(p1, p2, p3, nrow = 1)  # to draw all images together using grid arrange
 ```
+We have plotted Normal_qq_plot for Pearson and deviance residuals. The purpose of such plots is to identify any point that doesn't follow the straight line. We have also plotted deviance residuals vs. the fitted value to check the independence and identify any pattern in the residuals. From above Figure \ref{fig:out}, we can notice one potential outlier at the top of the qq_plot, and presence of heavy tails. So, our next step is to identify and remove the point and again fit the model. Let's run an Outlier test:- 
 
- 
-
-
-```{r}
-
-#check overdispersion
-
-c_d = cooks.distance(model1)
-which.max(c_d)
-i_n = influence(model1)$hat # calculate the influence of data points
-which.max(i_n)
-
-ggplot(model1, aes(x=log(fitted(model1)), y=log((dataset4$Total.Number.of.Family.members-fitted(model1))^2)))+
-  geom_point(col="#f46d43") +
-  geom_abline(slope=1, intercept=0, col="#a6d96a", size=1) +
-  ylab(expression((y-hat(mu))^2)) + xlab(expression(hat(mu)))
-
-c_d = cooks.distance(model1)
-which.max(c_d)
-i_n = influence(model1)$hat # calculate the influence of data points
-which.max(i_n)
-
-
-
-autoplot(model1, which = 1:4)
-
-pred <- predict(model1, type = "response")
-stand.resid <- rstandard(model = model1, type = "pearson") # Standardised Pearson residuals
-par(mfrow=c(1,2))
-plot(x = pred, y = stand.resid, xlab = "Predicted count", ylab = "Standardised Pearson residuals",
-main = "Regular likelihood", ylim = c(-5,5))
-abline(h = c(-3, -2, 0, 2, 3), lty = "dotted", col = "red")
-
+```{r outlier}
+# outlier testing with outlierTest function from car library
+ model1 %>%
+  outlierTest() 
 ```
+```{r cook, out.width = '68%', fig.align = "center", fig.cap = "\\label{fig:cook} Cook's distance", fig.pos = 'H'}
+#checking for cook's distance 
+cook <-cooks.distance(model1) 
+cook<- as.tibble(as.data.frame(cook))
+cook %>%
+  ggplot(aes(x = 1:2122,y = cook)) +
+  geom_point()+
+   ylab("Cook's Distance") + xlab("Index")
+```
+We have identified the outlier point having id 2033, while the point `r which(cook > 0.1)[[1]] ` has high influence .However, addressing outlier is totally subjective. We try to fit the model removing  outlier 2033 and check for the assumptions again. 
 
-```{r}
-dataset4 <- dataset4[-2033,]
-
+```{r mod1}
+# remove the outlier using slice
+dataset4 <- dataset4 %>%
+    slice(-c(2033))
+# fitted the model again, everything else being as earlier 
 model1 <- glm(Total.Number.of.Family.members ~ 
                 Household.Head.Sex                                                   +
                 
-                Household.Head.Age   *Type.of.Household                              +
+                log(Household.Head.Age) *  Type.of.Household                         +
                 log(Total.Food.Expenditure ) * Type.of.Household                     +
                 log(Total.Household.Income) * Type.of.Household                      +
                 log(Total.Household.Income) * Electricity                            +
-                Type.of.Household  *Electricity                                      +
+                Type.of.Household * Electricity                                                         +
                 log(House.Floor.Area)                                                +
                 Number.of.bedrooms                                                   +
                 House.Age                                                           
                                                  
                ,data = dataset4,family = "poisson") 
-
-autoplot(model1,which = 1:4)
-
-
-
-resp <- resid(model1, type = "pearson")
-resd <- resid(model1, type = "deviance")
-p1<- ggplot(model1, aes(sample = resp)) + geom_point(stat = "qq", color = "#7fc97f") +
-  ylab("Pearson residuals")
-p2<- ggplot(model1, aes(sample = resd)) + geom_point(stat = "qq", color = "#7fc97f") +
-  ylab("Deviance residuals")
-p3<- ggplot(model1, aes(x = predict(model1, type="link"), y =resd))+
-  geom_point(col = "#7fc97f") +
-  ylab("Deviance residuals") + xlab("Linear predictor")
-grid.arrange(p1, p2, p3, nrow = 1)
-#check overdispersion
-
-
-dispersiontest(model1, trafo = 1 ,alternative = c("less"))
-
 ```
 
-```{r}
-drop1(model1,test="F")
+```{r plot1, out.width = '68%', fig.align = "center", fig.cap = "\\label{fig:assum} Assumptions check", fig.pos = 'H'}
+#got the pearson residual 
+resp <-  model1 %>%
+  resid(type = "pearson")
+#got the deviance residual 
+resd <- model1 %>%
+  resid(type = "deviance")
+#qq plot for pearson residual 
+p1<-  model1 %>%
+  ggplot( aes(sample = resp)) + geom_point(stat = "qq", color = "#7fc97f") +
+  ylab("Pearson residuals")
+#qq plot for deviance residual 
+p2<- model1 %>%
+  ggplot( aes(sample = resd)) + geom_point(stat = "qq", color = "#7fc97f") +
+  ylab("Deviance residuals")
+# predicted vs residual for independece and constant variance checking. 
+p3<- model1  %>%
+  ggplot( aes(x = predict(model1, type="link"), y =resd))+
+  geom_point(col = "#7fc97f") +
+  ylab("Deviance residuals") + xlab("Linear predictor")
+grid.arrange(p1, p2, p3, nrow = 1)  # to draw all images together using grid arrange
+```
+From Figure \ref{fig:assum}, we can see some patterns in the deviance residuals vs predicted value. That is because of different measurement of variance for the same output value.  It would be better to fit some quadratic terms in the explanatory variables. Residuals seem to be normally distributed with some heavy tails. Now, we proceed with the dispersion test as there has been some evidence of underdispersion. 
 
+```{r plot2, out.width = '68%', fig.align = "center", fig.cap = "\\label{fig:disp} Underdispersion", fig.pos = 'H'}
+# plot to check the distribution of residuals vs the expected value.  In poisson model mean is equal to #variance, but practically it is impossible to get. So we must check variance vs mean 
+model1 %>%
+ ggplot( aes(x=log(fitted(model1)), y=log((dataset4$Total.Number.of.Family.members-fitted(model1))^2)))+
+  geom_point(col="#f46d43") + # y axis is the log of square of residuals 
+  geom_abline(slope=1, intercept=0, col="#a6d96a", size=1) +
+  ylab(expression((y-hat(mu))^2)) + xlab(expression(hat(mu)))
+```
+
+```{r disp}
+#check for aplha parameter in dispersion, A negative value of alpha confirms underdispersion
+# dispersiontest is a function from AER library 
+dis <- model1 %>%
+dispersiontest( trafo = 1 ,alternative = c("less")) # less option is to test for underdispersion
+dis
+```
+The negative value of aplha (`r round(dis$estimate,2)`) is significant because the p_value for the hypothesis test is (`r round(dis$p.value,2)`). Figure \ref{fig:disp} displays the underdispersed variance. Therefore, we can't rely on Wald's test for inference in the above model.  Rather, we perform analysis with quasi-poisson model that adjusts variance for underdispersion. We resort to F test and do step by step variable removal to choose the best fitting model. F test relies on AIC comparasion of different models:- 
+
+
+
+```{r drop1}
+# drop1 perform F test, gives the cost of removing each variable by comparing AIC 
+# if removing any variable has a cost, stop iterating and that is the final model itself. 
+drop <- model1 %>%
+drop1(test="F") %>%
+  kable(caption = '\\label{tab:drop1} Performing F test on the inital model') %>% #kable to display in tabular form
+kable_styling(latex_options = 'HOLD_position') # to fix the position
+drop
+```
+In the table \ref{tab:drop1},log(Household.Head.Age):Type.of.Household, Type.of.Household:log(Total.Food.Expenditure)	 and Type.of.Household:log(Total.Household.Income) can be eliminated without significantly hurting the model's quality. So, we firstly eliminate variable Type.of.Household:log(Total.Household.Income)	 and check for F test again:-
+ 
+
+
+```{r mod3}
+# again fit the glm with removed interaction terms, rest remains the same 
 model2 <- glm(Total.Number.of.Family.members ~ 
                 Household.Head.Sex                                                   +
-                Household.Head.Age   *Type.of.Household                              +
-                log(Total.Food.Expenditure ) * Type.of.Household                     +
+                log( Household.Head.Age)*  Type.of.Household                         +
                 
+                log(Total.Food.Expenditure)*Type.of.Household                        +
                 log(Total.Household.Income) * Electricity                            +
-                Type.of.Household  *Electricity                                      +
+                Type.of.Household*    Electricity                                    +                                  
                 log(House.Floor.Area)                                                +
                 House.Age                                                            +
                 Number.of.bedrooms                                  
                ,data = dataset4,family = "poisson")  # fitted the poisson model using glm
+# again checked for removal of vaible  using drop1 in pipeline
+drop <- model2 %>%
+drop1(test="F") %>%
+  kable(caption = '\\label{tab:drop2} Performing F test on the inital model') %>%
+kable_styling(latex_options = 'HOLD_position')
+drop
+ 
+```
+The F test says that we can remove log(Household.Head.Age):Type.of.Household in the table \ref{tab:drop2}. So, repeat the same process until we reach all terms are significant. 
 
-drop1(model2,test = "F")
 
 
 
-
+```{r mod4}
+# new model with removing log(Household.Head.Age):Type.of.Household interaction term
 model3 <- glm(Total.Number.of.Family.members ~ 
                 Household.Head.Sex                                                   +
-                Household.Head.Age                                +
-                log(Total.Food.Expenditure ) * Type.of.Household                     +
+                log(Household.Head.Age )                                             +
+                log(Total.Food.Expenditure ) *Type.of.Household                      +
                 
                 log(Total.Household.Income) * Electricity                            +
-                Type.of.Household  *Electricity                                      +
+                 Type.of.Household*  Electricity                                     +
                 log(House.Floor.Area)                                                +
-                
                 House.Age                                                            +
-                Number.of.bedrooms                                  
+                Number.of.bedrooms                                 
+                
                ,data = dataset4,family = "poisson")  # fitted the poisson model using glm
-
-drop1(model3,test = "F")
-
-outlierTest(model3)
-
-
-resp <- resid(model3, type = "pearson")
-resd <- resid(model3, type = "deviance")
-p1<- ggplot(model3, aes(sample = resp)) + geom_point(stat = "qq", color = "#7fc97f") +
-  ylab("Pearson residuals")
-p2<- ggplot(model3, aes(sample = resd)) + geom_point(stat = "qq", color = "#7fc97f") +
-  ylab("Deviance residuals")
-p3<- ggplot(model3, aes(x = predict(model2, type="link"), y =resd))+
-  geom_point(col = "#7fc97f") +
-  ylab("Deviance residuals") + xlab("Linear predictor")
-
-grid.arrange(p1, p2, p3, nrow = 1)
-
+# again performed drop
+drop <- model3 %>%
+drop1(test="F") %>%
+  kable(caption = '\\label{tab:drop1} Performing F test on the inital model') %>%
+kable_styling(latex_options = 'HOLD_position')
+drop
+```
+Eventually, we reached to our final model that considers interactions between log(Total.Food.Expenditure):Type.of.Household , log(Total.Household.Income):Electricity, and Type.of.Household:Electricity  as significant. Now, we adjust the standard error using dispersion parameter, which is equivalent of fitting a quasipoisson model.  
+```{r final}
+# got the dispersion parameter
 X2 <- sum(resid(model3, type = "pearson")^2)
 dp <- X2 / model3$df.res
-dp
-summary(model3, dispersion = dp)
-
-
-
+dp #dp <1 meand underdispersion, while dp >1 means over dispersion
+model3 %>%
+ summ( dispersion =dp) # equivalent of fitting a quasi poisson model, adjust the variance for dispersion. 
 ```
-
-
-
+We can see that standard error slightly rises up after adjusting with the dispersion parameter, while the coefficient terms remains the same. Still, the wald test is not very reliable, and there is no benefit of analyzing confidence intervals. The expected Total.Number.of.Family.members increase by `r round(exp(0.22),2)` if the head of the family is male. Also, if the Type.of.Family is single and Type.of.HouseholdTwo or More Nonrelated Persons/Members, the expectation decrease  by factor of `r      round(exp(-1.08),2)` and `r round(exp(-7.97),2)` against the Extended family. Moreover, if log(Total.Food.Expenditure) and log(Total.Household.Income) are increase by 1 unit, the estimated count of family members may increase by `r round(exp(0.51),2)`  and `r round(exp(0.04),2)` respectively. 
+log(Total.Household.Income) is insignificant might be due to Simpson's paradox effect that is influence of multi-colinearity. Beside it, if there is electricity available at home, the estimated member count may be higher by `r round(exp(2.08),2)`. Taking about number of bedrooms,  if there is 1 more unit extra bedroom, the estimated number of members increases by `r   round(exp(0.03),2)`. Conversely, 1 unit increase in log(house area) and 1 year increase in house age, reduce the estimated member count by `r  round(exp(-0.05),2)` and `r  round(exp(-0.003804283) ,5)`. The age of the head also has negative association with with member count as higher the age, the count decreases by `r   round(exp(-0.07),2)` . There are some other significant interactions. For instance, if the type of household is single family, and log(foodexpenditure) is increased by 1 unit, then the estimated count increment rate will be multipled by `r  round(exp(0.09-1.08),2)` against Extended family. Beside it, if there is electricity at home, and log(income) is increased by 1 unit, the multiplying factor is `r  round(exp(-0.19+ 2.08) ,2)`. Also, if the family is single and there is electricity, the count of family members is estimated to change  by `r round(exp(-1.08 +2.08 + -0.20) ,2)`. 
 
 # Conclusions {#sec:Conc}
+The number of family members has positive association with food expenditure and family income. Also, Extended family is suppose to have higher number of family members than single and much greater than Nonrelated Persons/Members. A family headed by male will have higher count of family members than that of female. The estimated count of members also has positive association with the availability of bedrooms. However, as the house grow older, lesser people like to stay there. Also, availability of electricity enhances the number of family members.  
 
-# Extention {#sec:Ext}
-
-
-
-
-
-
+# Extension {#sec:Ext}
+We will consider more appropriate models like Generalized poisson model, or Conway-Maxwell Poisson (COM-Poisson) Regression, which have less expected residual variance than the mean. We will also attempt to apply quadratic model that address the slight curve in the deviance against fitted plot. Moreover, we can include more regions and use Linear Mixed models, which considers both fixed and random effect due to repeated observations from same entity.   
 
