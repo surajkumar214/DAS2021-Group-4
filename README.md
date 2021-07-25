@@ -1,11 +1,58 @@
 # DAS2021-Group-4
-                            Welcome to Assessment 5
-Stage 1. Analyse the allocated data set using GitHub to share and store code
-The document “Datasets Descriptions” on the DAS Moodle page describes 28 datasets from which each group has been allocated one to work on for this assignment (the group number corresponds to the dataset allocated). Please ensure you are working with the correct dataset and are answering
-your assigned question of interest. The data sets are available to download from Moodle. Analyse the data in a collaborative fashion in a file called Group_##_Analysis.Rmd in GitHub by creating a repository on GitHub named DAS2021-Group-## where ## corresponds to the number of
-your group. Only one person will need to create the repository, then add everyone else. Please also add Craig and Mitchum to your repository by Tuesday 13th July at 12:00 using the GitHub usernames craigalexander and mitchumbock. 
+                           Assessment 5
+                           
+Analysis of deciding factors for number of family members in XII - SOCCSKSARGEN
+Region of Philippines. 
 
-  When using your repository for analysis, make sure to leave detailed comments on any commits you make to the main branch.
-• Be sure to fork at least one piece of work out of the main branch. Assign members of your group to review the changes and then approve them.
-• You will be asked to peer review relevant group members contributions to the repository, in terms of checking code, providing helpful commit messages and     approving merges with detailed comments.
-• If you choose to save output on your repository, please put these in a folder with an appropriate title (e.g. Plots). 
+The society is composed of one family, and the study of the population of family members is of great significance to the population of the study area. Understanding the influencing factors that affect the number of households is helpful to understand the population situation in the area, predict future population development trends and make timely policy adjustments. Datasets comes from the FIES (Family Income and Expenditure Survey) recorded in the Philippines.
+
+
+A poisson GLM has been fitted for Number.of.family.members vs following covariates:-
+
+• Total.Household.Income – Annual household income (in Philippine peso)
+• Region – The region of the Philippines which you have data for
+• Total.Food.Expenditure – Annual expenditure by the household on food (in
+  Philippine peso)
+• Household.Head.Sex – Head of the households sex
+• Household.Head.Age – Head of the households age (in years)
+• Type.of.Household – Relationship between the group of people living in the house
+• Total.Number.of.Family.members – Number of people living in the house
+• House.Floor.Area – Floor area of the house (in 𝑚2)
+• House.Age – Age of the building (in years)
+• Number.of.bedrooms – Number of bedrooms in the house
+• Electricity – Does the house have electricity? (1=Yes, 0=No)
+
+
+Analysis goes through several parts:-
+ 1. Introduction and justification of data
+ 2. Exploratory analysis
+ 3. Formal Analysis
+ 4. Conclusion
+ 5. Future extension. 
+ 
+Challenges faced:-
+ 1. Presence of interactions and multicolinearity among variables. 
+ 2. Underdispersion of residual variance.  
+ 3. Got some pattern in Deviance residuals vs Predicted values plot. 
+ 4. Presence of many influential points. 
+
+
+
+Technologies Used:-
+ 1. Rstudio
+ 2. R  version 4.1.0 
+ 2. Git & Github
+ 3. Ms teams
+
+Installation Instructions:-
+
+Rstudio:- https://www.rstudio.com/products/rstudio/download/
+Git:- https://git-scm.com/downloads
+Github Account :- https://github.com/
+Desktop Github:- https://desktop.github.com/
+
+
+
+
+
+
