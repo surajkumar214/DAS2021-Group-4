@@ -60,3 +60,9 @@ skim(dataset4)
 ## Household Head Sex {#sec:HouseHoldSex}
 
 The number of family members in male-headed households is slightly scattered than female-headed households. Figure \ref{fig:Boxplot1} shows that there are 3 outliers in the data of female-headed households, and 7 outliers in the data of male-headed households. 
+```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE, fig.align = "center", fig.cap = "\\label{fig:Boxplot1} Boxplot of family member numbers by household head sex", fig.pos = 'H'}
+ggplot(dataset4, aes(x =Household.Head.Sex , y = Total.Number.of.Family.members)) +
+geom_boxplot() +
+labs(x = "Household Head Sex", y = "Total Number of.Family members",title="Boxplot of family member numbers by household head sex")
+#Boxplot of the total number of family by sex
+```
