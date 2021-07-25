@@ -264,7 +264,33 @@ drop
 
 
 ```
-Eventually, we reached to our final model that considers interactions between log(Total.Food.Expenditure):Type.of.Household , log(Total.Household.Income):Electricity, and Type.of.Household:Electricity  as significant. Now, we adjust the standard error using dispersion parameter, which is equivalent of fitting a quasipoisson model.  
+Eventually, we reached to our final model that considers interactions between log(Total.Food.Expenditure):Type.of.Household , log(Total.Household.Income):Electricity, and Type.of.Household:Electricity  as significant. Let's check assumptions one more time. 
+
+```{r plot3, out.width = '68%', fig.align = "center", fig.cap = "\\label{fig:assum} Assumptions checking for final model", fig.pos = 'H'}
+#got the pearson residual 
+resp <-  model3 %>%
+  resid(type = "pearson")
+#got the deviance residual 
+resd <- model3 %>%
+  resid(type = "deviance")
+#qq plot for pearson residual 
+p1<-  model3 %>%
+  ggplot( aes(sample = resp)) + geom_point(stat = "qq", color = "#7fc97f") +
+  ylab("Pearson residuals")
+#qq plot for deviance residual 
+p2<- model3 %>%
+  ggplot( aes(sample = resd)) + geom_point(stat = "qq", color = "#7fc97f") +
+  ylab("Deviance residuals")
+# predicted vs residual for independece and constant variance checking. 
+p3<- model3  %>%
+  ggplot( aes(x = predict(model3, type="link"), y =resd))+
+  geom_point(col = "#7fc97f") +
+  ylab("Deviance residuals") + xlab("Linear predictor")
+grid.arrange(p1, p2, p3, nrow = 1)  # to draw all images together using grid arrange
+
+```
+
+Assumptions looks pretty similar as earlier analyzed.Now, we adjust the standard error using dispersion parameter, which is equivalent of fitting a quasipoisson model.  
 ```{r final}
 # got the dispersion parameter
 X2 <- sum(resid(model3, type = "pearson")^2)
@@ -276,6 +302,8 @@ model3 %>%
 
 
 ```
+
+
 We can see that standard error slightly rises up after adjusting with the dispersion parameter, while the coefficient terms remains the same. Still, the wald test is not very reliable, and there is no benefit of analyzing confidence intervals. The expected Total.Number.of.Family.members increase by `r round(exp(0.22),2)` if the head of the family is male. Also, if the Type.of.Family is single and Type.of.HouseholdTwo or More Nonrelated Persons/Members, the expectation decrease  by factor of `r      round(exp(-1.08),2)` and `r round(exp(-7.97),2)` against the Extended family. Moreover, if log(Total.Food.Expenditure) and log(Total.Household.Income) are increase by 1 unit, the estimated count of family members may increase by `r round(exp(0.51),2)`  and `r round(exp(0.04),2)` respectively. 
 log(Total.Household.Income) is insignificant might be due to Simpson's paradox effect that is influence of multi-colinearity. Beside it, if there is electricity available at home, the estimated member count may be higher by `r round(exp(2.08),2)`. Taking about number of bedrooms,  if there is 1 more unit extra bedroom, the estimated number of members increases by `r   round(exp(0.03),2)`. Conversely, 1 unit increase in log(house area) and 1 year increase in house age, reduce the estimated member count by `r  round(exp(-0.05),2)` and `r  round(exp(-0.003804283) ,5)`. The age of the head also has negative association with with member count as higher the age, the count decreases by `r   round(exp(-0.07),2)` . There are some other significant interactions. For instance, if the type of household is single family, and log(foodexpenditure) is increased by 1 unit, then the estimated count increment rate will be multipled by `r  round(exp(0.09-1.08),2)` against Extended family. Beside it, if there is electricity at home, and log(income) is increased by 1 unit, the multiplying factor is `r  round(exp(-0.19+ 2.08) ,2)`. Also, if the family is single and there is electricity, the count of family members is estimated to change  by `r round(exp(-1.08 +2.08 + -0.20) ,2)`. 
 

@@ -1249,7 +1249,19 @@ Type.of.Household:Electricity
 Eventually, we reached to our final model that considers interactions
 between log(Total.Food.Expenditure):Type.of.Household ,
 log(Total.Household.Income):Electricity, and
-Type.of.Household:Electricity as significant. Now, we adjust the
+Type.of.Household:Electricity as significant. Let’s check assumptions
+one more time.
+
+<div class="figure" style="text-align: center">
+
+<img src="group_04_files/figure-gfm/plot3-1.png" alt="\label{fig:assum} Assumptions checking for final model" width="68%" />
+<p class="caption">
+Assumptions checking for final model
+</p>
+
+</div>
+
+Assumptions looks pretty similar as earlier analyzed.Now, we adjust the
 standard error using dispersion parameter, which is equivalent of
 fitting a quasipoisson model.
 
