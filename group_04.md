@@ -2437,7 +2437,41 @@ Type.of.Household:Electricity
 Eventually, we reached to our final model that considers interactions
 between log(Total.Food.Expenditure):Type.of.Household ,
 log(Total.Household.Income):Electricity, and
-Type.of.Household:Electricity as significant. Now, we adjust the
+Type.of.Household:Electricity as significant.
+
+``` r
+#got the pearson residual 
+resp <-  model3 %>%
+  resid(type = "pearson")
+#got the deviance residual 
+resd <- model3 %>%
+  resid(type = "deviance")
+#qq plot for pearson residual 
+p1<-  model3 %>%
+  ggplot( aes(sample = resp)) + geom_point(stat = "qq", color = "#7fc97f") +
+  ylab("Pearson residuals")
+#qq plot for deviance residual 
+p2<- model3 %>%
+  ggplot( aes(sample = resd)) + geom_point(stat = "qq", color = "#7fc97f") +
+  ylab("Deviance residuals")
+# predicted vs residual for independece and constant variance checking. 
+p3<- model3  %>%
+  ggplot( aes(x = predict(model3, type="link"), y =resd))+
+  geom_point(col = "#7fc97f") +
+  ylab("Deviance residuals") + xlab("Linear predictor")
+grid.arrange(p1, p2, p3, nrow = 1)  # to draw all images together using grid arrange
+```
+
+<div class="figure" style="text-align: center">
+
+<img src="group_04_files/figure-gfm/plot3-1.png" alt="\label{fig:assum} Assumptions checking for final model" width="68%" />
+<p class="caption">
+Assumptions checking for final model
+</p>
+
+</div>
+
+Assumptions looks pretty similar as earlier analyzed.Now, we adjust the
 standard error using dispersion parameter, which is equivalent of
 fitting a quasipoisson model.
 

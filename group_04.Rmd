@@ -1,5 +1,5 @@
 ---
-title: "Exploratory Data Analysis"
+title: "Analysis of deciding factors for number of family members in XII - SOCCSKSARGEN Region of Philippines."
 author: "QingZhang, Suraj Kumar, Xin Zhang, Xinyue Shu, Yao Xiao"
 date: "2021/7/18"
 output: github_document
@@ -670,7 +670,33 @@ drop1(test="F") %>%
 kable_styling(latex_options = 'HOLD_position')
 drop
 ```
-Eventually, we reached to our final model that considers interactions between log(Total.Food.Expenditure):Type.of.Household , log(Total.Household.Income):Electricity, and Type.of.Household:Electricity  as significant. Now, we adjust the standard error using dispersion parameter, which is equivalent of fitting a quasipoisson model.  
+Eventually, we reached to our final model that considers interactions between log(Total.Food.Expenditure):Type.of.Household , log(Total.Household.Income):Electricity, and Type.of.Household:Electricity  as significant.
+
+```{r plot3, out.width = '68%', fig.align = "center", fig.cap = "\\label{fig:assum} Assumptions checking for final model", fig.pos = 'H'}
+#got the pearson residual 
+resp <-  model3 %>%
+  resid(type = "pearson")
+#got the deviance residual 
+resd <- model3 %>%
+  resid(type = "deviance")
+#qq plot for pearson residual 
+p1<-  model3 %>%
+  ggplot( aes(sample = resp)) + geom_point(stat = "qq", color = "#7fc97f") +
+  ylab("Pearson residuals")
+#qq plot for deviance residual 
+p2<- model3 %>%
+  ggplot( aes(sample = resd)) + geom_point(stat = "qq", color = "#7fc97f") +
+  ylab("Deviance residuals")
+# predicted vs residual for independece and constant variance checking. 
+p3<- model3  %>%
+  ggplot( aes(x = predict(model3, type="link"), y =resd))+
+  geom_point(col = "#7fc97f") +
+  ylab("Deviance residuals") + xlab("Linear predictor")
+grid.arrange(p1, p2, p3, nrow = 1)  # to draw all images together using grid arrange
+```
+
+Assumptions looks pretty similar as earlier analyzed.Now, we adjust the standard error using dispersion parameter, which is equivalent of fitting a quasipoisson model.  
+
 ```{r final}
 # got the dispersion parameter
 X2 <- sum(resid(model3, type = "pearson")^2)
