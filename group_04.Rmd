@@ -1,4 +1,5 @@
 ---
+<<<<<<< HEAD
 title: "Exploratory Data Analysis"
 author: "QingZhang, Suraj Kumar, Xin Zhang, Xinyue Shu, Yao Xiao"
 date: "2021/7/18"
@@ -13,6 +14,22 @@ fig_caption: yes
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+=======
+title: "Group_04"
+author: "Suraj Kumar"
+date: "17/07/2021"
+output: github_document
+   
+number_sections: yes 
+always_allow_html: true
+           
+fig_caption: yes
+---
+
+```{r setup, include=FALSE}
+#default command
+knitr::opts_chunk$set(echo = FALSE, eval = TRUE, warning = FALSE, message = FALSE, comment = NA)
+>>>>>>> 5cf7deafdfbdbb139655d645b599e27358cfb5a8
 ```
 
 ```{r,echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
@@ -26,6 +43,7 @@ library(infer)
 library(broom)
 library(ggfortify)
 library(jtools)
+<<<<<<< HEAD
 library(AER)
 library(car)
 library(janitor)
@@ -49,6 +67,25 @@ The society is composed of one family, and the study of the population of family
 
 In some past studies, we found that some factors may affect the number of family members. This research studied 2122 families in Soccsksargen district and collected the data of total household income, total food expenditure, household head sex, household head age, type of household, total number of family members, house floor area, house age, number of bedrooms and electricity, the purpose is to find the relationship between the number of family members and other variables. 
 This report focuses on a different analysis level through summaries, boxplots, and general linear model. Section \ref{sec:EDA} consists of an exploratory data analysis of number of family members and explores the potential relationship between member numbers and other variables. Section \ref{sec:FDA} contains the results from fitting a generalized linear model to the data, as well as the assessment of the model assumptions. Concluding remarks are given in Section \ref{sec:Conc}.
+=======
+library(sjPlot)
+library(AER) # for underdispersion test
+library(car) #for outlier test
+
+```
+
+
+
+```{r data,echo=FALSE,eval=TRUE}
+#read and stored the data in dataset4, remove the Region variable as having only one factor
+dataset4<-read.csv("/home/suraj/Desktop/stats_folder/group_04.csv")
+dataset4<-dataset4%>%
+  select(-Region)
+#changed all character column to factors. 
+dataset4[sapply(dataset4,is.character)]<-lapply(dataset4[sapply(dataset4,is.character)],as.factor)
+#converted interger electricity col into factor 
+dataset4$Electricity <-as.factor(dataset4$Electricity)
+>>>>>>> 5cf7deafdfbdbb139655d645b599e27358cfb5a8
 
 # Exploratory data analysis {#sec:EDA}
 The data set contains 2122 observations with no missing value, and records a total of 10 variables, including three categorical variables and seven numerical variables. \ref{tab:Summaries1} shows the general information of the data set, including mean, standard deviation, quartile, etc. For making it clearer, this part of the analysis will covertly analyze different categorical variables one by one.
@@ -62,15 +99,22 @@ skim(dataset4)
 
 The number of family members in male-headed households is slightly scattered than female-headed households. Figure \ref{fig:Boxplot1} shows that there are 3 outliers in the data of female-headed households, and 7 outliers in the data of male-headed households. 
 
+<<<<<<< HEAD
 ```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE, fig.align = "center", fig.cap = "\\label{fig:Boxplot1} Boxplot of family member numbers by household head sex", fig.pos = 'H'}
 ggplot(dataset4, aes(x =Household.Head.Sex , y = Total.Number.of.Family.members)) +
 geom_boxplot() +
 labs(x = "Household Head Sex", y = "Total Number of.Family members",title="Boxplot of family member numbers by household head sex")
 #Boxplot of the total number of family by sex
+=======
+# Exploratory Data Analysis {#sec:EDA}
+```{r exp}
+
+>>>>>>> 5cf7deafdfbdbb139655d645b599e27358cfb5a8
 ```
 
 According to the average and quartiles provided in table \ref{tab:Summarise1}, households with male heads are more likely to have more members. The average of families members of male household head is 4.72, and the average of female head families is 3.63. The standard deviation of the number of members of male-headed households is 2.19, and the standard deviation of the number of members of female-headed households is 2.13, again confirming the conclusion drawn by the box plot that the number of members of male-headed households is slightly scattered, however, both kind of families have the value range of the number of members is the same (between 1 and 19).
 
+<<<<<<< HEAD
 ```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE,fig.align = "center", fig.cap="\\label{tab:Summarise1} Summary statistics on total number of family members by sex.",fig.pos='H'}
 dataset4%>%
   group_by(Household.Head.Sex)%>%
@@ -158,6 +202,57 @@ p11<-ggplot(dataset4, aes(x =log(House.Age), y = Total.Number.of.Family.members,
   labs(x = "log(House.Age)", y = "Total.Number.of.Family.members")
 #Superimpose our best-fitting line onto our scatterplot for log(household head age) and total number of family members by sex
 ```
+=======
+We fit a Poisson model as our response is a count variable. We have excluded Region as a covariate because there was only one factor. We will start with a model that considers all the initial impressions from the exploratory analysis. The model takes into account the interaction between log(Household.Head.Age) and Type.of.Household, log(Total.Food.Expenditure ) and Type.of.Household,   log(Total.Household.Income) and Electricity, and  Type.of.Household  and Electricity. We have scaled Total.Food.Expenditure, Total.Household.Income, Household.Head.Age, and House.Floor.Area by taking log transformation to address the scalability issue in the design matrix. Here is the summary of the described model:- 
+
+
+
+```{r model1}
+#fitted the glm poisson model with 5 potential interaction terms as mentioned earlier 
+model1 <- glm(Total.Number.of.Family.members ~ 
+                Household.Head.Sex                                  +
+                
+                log(Household.Head.Age)*   Type.of.Household        + 
+                log(Total.Food.Expenditure ) * Type.of.Household    +
+                log(Total.Household.Income) * Type.of.Household     +
+                log(Total.Household.Income) * Electricity           +
+                Type.of.Household*Electricity                       +
+                log(House.Floor.Area)                               +
+                Number.of.bedrooms                                  +
+                House.Age                                                           
+                                                 
+               ,data = dataset4,family = "poisson")  
+#produced the model summary using pipeline summ command from jtools
+model1 %>%
+  summ()
+
+ 
+  
+```
+We can observe a lot of insignificant variables in our initial model. However, before proceeding to the wald test to check the significance of each variable, we, firstly, looked for any potential outliers and checked whether assumptions are holding.  We can notice that the deviance of the model(`r round(deviance(model1),2)`) is much less than chi-square(`r round(qchisq(df = model1$df.residual,p = 0.95),2)`). So, there could be a case of underdispersion, wherein the estimated variance is less than the expected mean. We can interpret the coefficients in such a situation but can't rely on standard error as they are deflated. 
+ 
+```{r plot, out.width = '68%', fig.align = "center", fig.cap = "\\label{fig:out} Outlier and Assumptions check", fig.pos = 'H'}
+#got the pearson residual 
+resp <-  model1 %>%
+  resid(type = "pearson")
+#got the deviance residual 
+resd <- model1 %>%
+  resid(type = "deviance")
+#qq plot for pearson residual for normal distribution of residuals checking 
+p1<-  model1 %>%
+  ggplot( aes(sample = resp)) + geom_point(stat = "qq", color = "#7fc97f") +
+  ylab("Pearson residuals")
+#qq plot for deviance residual for normal distribution of residuals checking
+p2<- model1 %>%
+  ggplot( aes(sample = resd)) + geom_point(stat = "qq", color = "#7fc97f") +
+  ylab("Deviance residuals")
+# predicted vs residual for independence and constant variance checking. 
+p3<- model1  %>%
+  ggplot( aes(x = predict(model1, type="link"), y =resd))+
+  geom_point(col = "#7fc97f") +
+  ylab("Deviance residuals") + xlab("Linear predictor")
+grid.arrange(p1, p2, p3, nrow = 1)  # to draw all images together using grid arrange
+>>>>>>> 5cf7deafdfbdbb139655d645b599e27358cfb5a8
 
 ```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
 p12<-ggplot(dataset4, aes(x =Number.of.bedrooms , y = Total.Number.of.Family.members,color=Household.Head.Sex)) +
@@ -177,7 +272,9 @@ p13<-ggplot(dataset4, aes(x =log(Number.of.bedrooms) , y = Total.Number.of.Famil
 grid.arrange(p1,p2,p3,p4,ncol=2)
 grid.arrange(p5,p6,p7,p8,p9,ncol=2)
 ```
+We have plotted Normal_qq_plot for Pearson and deviance residuals. The purpose of such plots is to identify any point that doesn't follow the straight line. We have also plotted deviance residuals vs. the fitted value to check the independence and identify any pattern in the residuals. From above Figure \ref{fig:out}, we can notice one potential outlier at the top of the qq_plot, and presence of heavy tails. So, our next step is to identify and remove the point and again fit the model. Let's run an Outlier test:- 
 
+<<<<<<< HEAD
 ```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE,fig.align = "center", fig.cap = "\\label{fig:Graphs1} sctter plots of family member numbers by household head sex", fig.pos = 'H'}
 grid.arrange(p10,p11,p12,p13,ncol=2)
 #Scatterplots for each variable are laid out in two columns
@@ -309,8 +406,25 @@ grid.arrange(p23,p24,ncol=1)
 ```{r, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE,fig.align = "center", fig.cap = "\\label{fig:Graphs2} sctter plots of family member numbers by type of household", fig.pos = 'H'}
 grid.arrange(p25,p26,ncol=1)
 # Make the scatter plots arrangement more compact.
-```
+=======
 
+
+```{r outlier}
+# outlier testing with outlierTest function from car library
+ model1 %>%
+  outlierTest() 
+>>>>>>> 5cf7deafdfbdbb139655d645b599e27358cfb5a8
+```
+```{r cook, out.width = '68%', fig.align = "center", fig.cap = "\\label{fig:cook} Cook's distance", fig.pos = 'H'}
+#checking for cook's distance 
+cook <-cooks.distance(model1) 
+cook<- as.tibble(as.data.frame(cook))
+cook %>%
+  ggplot(aes(x = 1:2122,y = cook)) +
+  geom_point()+
+   ylab("Cook's Distance") + xlab("Index")
+
+<<<<<<< HEAD
 ## Electricity
 
 According to figure \ref{fig:Boxplot3}, whether the family is powered on has little effect on the average and distribution range of the number of family members. 4 and 6 outliers appear in unpowered and power-on conditions respectively.
@@ -546,6 +660,11 @@ cook %>%
 ```
 We have identified the outlier point having id 2033, while the point `r which(cook > 0.1)[[1]] ` has high influence .However, addressing outlier is totally subjective. We try to fit the model removing  outlier 2033 and check for the assumptions again. 
 
+=======
+```
+We have identified the outlier point having id 2033, while the point `r which(cook > 0.1)[[1]] ` has high influence .However, addressing outlier is totally subjective. We try to fit the model removing  outlier 2033 and check for the assumptions again. 
+
+>>>>>>> 5cf7deafdfbdbb139655d645b599e27358cfb5a8
 ```{r mod1}
 # remove the outlier using slice
 dataset4 <- dataset4 %>%
@@ -587,9 +706,45 @@ p3<- model1  %>%
   geom_point(col = "#7fc97f") +
   ylab("Deviance residuals") + xlab("Linear predictor")
 grid.arrange(p1, p2, p3, nrow = 1)  # to draw all images together using grid arrange
+<<<<<<< HEAD
 ```
 From Figure \ref{fig:assum}, we can see some patterns in the deviance residuals vs predicted value. That is because of different measurement of variance for the same output value.  It would be better to fit some quadratic terms in the explanatory variables. Residuals seem to be normally distributed with some heavy tails. Now, we proceed with the dispersion test as there has been some evidence of underdispersion. 
 
+```{r plot2, out.width = '68%', fig.align = "center", fig.cap = "\\label{fig:disp} Underdispersion", fig.pos = 'H'}
+# plot to check the distribution of residuals vs the expected value.  In poisson model mean is equal to #variance, but practically it is impossible to get. So we must check variance vs mean 
+model1 %>%
+ ggplot( aes(x=log(fitted(model1)), y=log((dataset4$Total.Number.of.Family.members-fitted(model1))^2)))+
+  geom_point(col="#f46d43") + # y axis is the log of square of residuals 
+  geom_abline(slope=1, intercept=0, col="#a6d96a", size=1) +
+  ylab(expression((y-hat(mu))^2)) + xlab(expression(hat(mu)))
+```
+
+```{r disp}
+#check for aplha parameter in dispersion, A negative value of alpha confirms underdispersion
+# dispersiontest is a function from AER library 
+dis <- model1 %>%
+dispersiontest( trafo = 1 ,alternative = c("less")) # less option is to test for underdispersion
+dis
+```
+The negative value of aplha (`r round(dis$estimate,2)`) is significant because the p_value for the hypothesis test is (`r round(dis$p.value,2)`). Figure \ref{fig:disp} displays the underdispersed variance. Therefore, we can't rely on Wald's test for inference in the above model.  Rather, we perform analysis with quasi-poisson model that adjusts variance for underdispersion. We resort to F test and do step by step variable removal to choose the best fitting model. F test relies on AIC comparasion of different models:- 
+=======
+>>>>>>> 5cf7deafdfbdbb139655d645b599e27358cfb5a8
+
+```
+From Figure \ref{fig:assum}, we can see some patterns in the deviance residuals vs predicted value. That is because of different measurement of variance for the same output value.  It would be better to fit some quadratic terms in the explanatory variables. Residuals seem to be normally distributed with some heavy tails. Now, we proceed with the dispersion test as there has been some evidence of underdispersion. 
+
+<<<<<<< HEAD
+
+```{r drop1}
+# drop1 perform F test, gives the cost of removing each variable by comparing AIC 
+# if removing any variable has a cost, stop iterating and that is the final model itself. 
+drop <- model1 %>%
+drop1(test="F") %>%
+  kable(caption = '\\label{tab:drop1} Performing F test on the inital model') %>% #kable to display in tabular form
+kable_styling(latex_options = 'HOLD_position') # to fix the position
+drop
+```
+=======
 ```{r plot2, out.width = '68%', fig.align = "center", fig.cap = "\\label{fig:disp} Underdispersion", fig.pos = 'H'}
 # plot to check the distribution of residuals vs the expected value.  In poisson model mean is equal to #variance, but practically it is impossible to get. So we must check variance vs mean 
 model1 %>%
@@ -617,8 +772,10 @@ drop <- model1 %>%
 drop1(test="F") %>%
   kable(caption = '\\label{tab:drop1} Performing F test on the inital model') %>% #kable to display in tabular form
 kable_styling(latex_options = 'HOLD_position') # to fix the position
+
 drop
 ```
+>>>>>>> 5cf7deafdfbdbb139655d645b599e27358cfb5a8
 In the table \ref{tab:drop1},log(Household.Head.Age):Type.of.Household, Type.of.Household:log(Total.Food.Expenditure)	 and Type.of.Household:log(Total.Household.Income) can be eliminated without significantly hurting the model's quality. So, we firstly eliminate variable Type.of.Household:log(Total.Household.Income)	 and check for F test again:-
  
 
@@ -641,14 +798,27 @@ drop <- model2 %>%
 drop1(test="F") %>%
   kable(caption = '\\label{tab:drop2} Performing F test on the inital model') %>%
 kable_styling(latex_options = 'HOLD_position')
+<<<<<<< HEAD
 drop
  
+```
+The F test says that we can remove log(Household.Head.Age):Type.of.Household in the table \ref{tab:drop2}. So, repeat the same process until we reach all terms are significant. 
+=======
+
+drop
+
+ 
+>>>>>>> 5cf7deafdfbdbb139655d645b599e27358cfb5a8
+
 ```
 The F test says that we can remove log(Household.Head.Age):Type.of.Household in the table \ref{tab:drop2}. So, repeat the same process until we reach all terms are significant. 
 
 
 
+<<<<<<< HEAD
+=======
 
+>>>>>>> 5cf7deafdfbdbb139655d645b599e27358cfb5a8
 ```{r mod4}
 # new model with removing log(Household.Head.Age):Type.of.Household interaction term
 model3 <- glm(Total.Number.of.Family.members ~ 
@@ -668,9 +838,44 @@ drop <- model3 %>%
 drop1(test="F") %>%
   kable(caption = '\\label{tab:drop1} Performing F test on the inital model') %>%
 kable_styling(latex_options = 'HOLD_position')
+<<<<<<< HEAD
 drop
 ```
 Eventually, we reached to our final model that considers interactions between log(Total.Food.Expenditure):Type.of.Household , log(Total.Household.Income):Electricity, and Type.of.Household:Electricity  as significant. Now, we adjust the standard error using dispersion parameter, which is equivalent of fitting a quasipoisson model.  
+=======
+
+drop
+
+
+```
+Eventually, we reached to our final model that considers interactions between log(Total.Food.Expenditure):Type.of.Household , log(Total.Household.Income):Electricity, and Type.of.Household:Electricity  as significant. Let's check assumptions one more time. 
+
+```{r plot3, out.width = '68%', fig.align = "center", fig.cap = "\\label{fig:assum} Assumptions checking for final model", fig.pos = 'H'}
+#got the pearson residual 
+resp <-  model3 %>%
+  resid(type = "pearson")
+#got the deviance residual 
+resd <- model3 %>%
+  resid(type = "deviance")
+#qq plot for pearson residual 
+p1<-  model3 %>%
+  ggplot( aes(sample = resp)) + geom_point(stat = "qq", color = "#7fc97f") +
+  ylab("Pearson residuals")
+#qq plot for deviance residual 
+p2<- model3 %>%
+  ggplot( aes(sample = resd)) + geom_point(stat = "qq", color = "#7fc97f") +
+  ylab("Deviance residuals")
+# predicted vs residual for independece and constant variance checking. 
+p3<- model3  %>%
+  ggplot( aes(x = predict(model3, type="link"), y =resd))+
+  geom_point(col = "#7fc97f") +
+  ylab("Deviance residuals") + xlab("Linear predictor")
+grid.arrange(p1, p2, p3, nrow = 1)  # to draw all images together using grid arrange
+
+```
+
+Assumptions looks pretty similar as earlier analyzed.Now, we adjust the standard error using dispersion parameter, which is equivalent of fitting a quasipoisson model.  
+>>>>>>> 5cf7deafdfbdbb139655d645b599e27358cfb5a8
 ```{r final}
 # got the dispersion parameter
 X2 <- sum(resid(model3, type = "pearson")^2)
@@ -678,7 +883,16 @@ dp <- X2 / model3$df.res
 dp #dp <1 meand underdispersion, while dp >1 means over dispersion
 model3 %>%
  summ( dispersion =dp) # equivalent of fitting a quasi poisson model, adjust the variance for dispersion. 
+<<<<<<< HEAD
 ```
+=======
+
+
+
+```
+
+
+>>>>>>> 5cf7deafdfbdbb139655d645b599e27358cfb5a8
 We can see that standard error slightly rises up after adjusting with the dispersion parameter, while the coefficient terms remains the same. Still, the wald test is not very reliable, and there is no benefit of analyzing confidence intervals. The expected Total.Number.of.Family.members increase by `r round(exp(0.22),2)` if the head of the family is male. Also, if the Type.of.Family is single and Type.of.HouseholdTwo or More Nonrelated Persons/Members, the expectation decrease  by factor of `r      round(exp(-1.08),2)` and `r round(exp(-7.97),2)` against the Extended family. Moreover, if log(Total.Food.Expenditure) and log(Total.Household.Income) are increase by 1 unit, the estimated count of family members may increase by `r round(exp(0.51),2)`  and `r round(exp(0.04),2)` respectively. 
 log(Total.Household.Income) is insignificant might be due to Simpson's paradox effect that is influence of multi-colinearity. Beside it, if there is electricity available at home, the estimated member count may be higher by `r round(exp(2.08),2)`. Taking about number of bedrooms,  if there is 1 more unit extra bedroom, the estimated number of members increases by `r   round(exp(0.03),2)`. Conversely, 1 unit increase in log(house area) and 1 year increase in house age, reduce the estimated member count by `r  round(exp(-0.05),2)` and `r  round(exp(-0.003804283) ,5)`. The age of the head also has negative association with with member count as higher the age, the count decreases by `r   round(exp(-0.07),2)` . There are some other significant interactions. For instance, if the type of household is single family, and log(foodexpenditure) is increased by 1 unit, then the estimated count increment rate will be multipled by `r  round(exp(0.09-1.08),2)` against Extended family. Beside it, if there is electricity at home, and log(income) is increased by 1 unit, the multiplying factor is `r  round(exp(-0.19+ 2.08) ,2)`. Also, if the family is single and there is electricity, the count of family members is estimated to change  by `r round(exp(-1.08 +2.08 + -0.20) ,2)`. 
 
@@ -686,5 +900,14 @@ log(Total.Household.Income) is insignificant might be due to Simpson's paradox e
 The number of family members has positive association with food expenditure and family income. Also, Extended family is suppose to have higher number of family members than single and much greater than Nonrelated Persons/Members. A family headed by male will have higher count of family members than that of female. The estimated count of members also has positive association with the availability of bedrooms. However, as the house grow older, lesser people like to stay there. Also, availability of electricity enhances the number of family members.  
 
 # Extension {#sec:Ext}
+<<<<<<< HEAD
 We will consider more appropriate models like Generalized poisson model, or Conway-Maxwell Poisson (COM-Poisson) Regression, which have less expected residual variance than the mean. We will also attempt to apply quadratic model that address the slight curve in the deviance against fitted plot. Moreover, we can include more regions and use Linear Mixed models, which considers both fixed and random effect due to repeated observations from same entity.   
+=======
+
+We will consider more appropriate models like Generalized poisson model, or Conway-Maxwell Poisson (COM-Poisson) Regression, which have less expected residual variance than the mean. We will also attempt to apply quadratic model that address the slight curve in the deviance against fitted plot. Moreover, we can include more regions and use Linear Mixed models, which considers both fixed and random effect due to repeated observations from same entity.   
+
+
+
+
+>>>>>>> 5cf7deafdfbdbb139655d645b599e27358cfb5a8
 
