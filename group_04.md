@@ -2925,6 +2925,12 @@ count of family members than that of female. The estimated count of
 members also has positive association with the availability of bedrooms.
 However, as the house grow older, lesser people like to stay there.
 Also, availability of electricity enhances the number of family members.
+For the same income, the number of family members are likely to be less,
+may be because, mostly single families have access to electricity and
+mostly extended families have no access to electricity. Food expenditure
+and type of households are likely to interact, as for the same unit
+increase in food expenditure, Two or More Nonrelated Persons/Members are
+more likely to add members than single and extended.
 
 # Extension
 
