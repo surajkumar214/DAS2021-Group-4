@@ -1,4 +1,5 @@
-Exploratory Data Analysis
+Analysis of deciding factors for number of family members in XII -
+SOCCSKSARGEN Region of Philippines.
 ================
 QingZhang, Suraj Kumar, Xin Zhang, Xinyue Shu, Yao Xiao
 2021/7/18
@@ -984,8 +985,14 @@ House.Age has a weak collinearity with Total.Food.Expenditure
 (correlation is 0.322) 3. Number.of.bedrooms has a weak collinearity
 with House.Floor.Area (correlation is 0.426).
 
-![ Matrix of plots with data
-set](group_04_files/figure-gfm/matrix-1.png)
+<div class="figure" style="text-align: center">
+
+<img src="group_04_files/figure-gfm/matrix-1.png" alt="\label{fig:matrix} Matrix of plots with data set"  />
+<p class="caption">
+Matrix of plots with data set
+</p>
+
+</div>
 
 The proportion of female-headed households being extended is higher than
 that of male-headed households (41.7% and 24.7%, respectively), and

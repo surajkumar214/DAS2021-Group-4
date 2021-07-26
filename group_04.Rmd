@@ -439,7 +439,7 @@ Correlations of variables are calculated to check whether there are multicolline
 2. Number.of.bedrooms has a weak collinearity with Total.Food.Expenditure (correlation is 0.407), House.Age has a weak collinearity with Total.Food.Expenditure (correlation is 0.322)
 3. Number.of.bedrooms has a weak collinearity with House.Floor.Area (correlation is 0.426).
 
-```{r matrix, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE, fig.cap = "\\label{fig:matrix} Matrix of plots with data set", fig.pos = 'H'}
+```{r matrix, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE,fig.align = "center", fig.cap = "\\label{fig:matrix} Matrix of plots with data set", fig.pos = 'H'}
 data<-dataset4%>%
   select(-c(Household.Head.Sex,Type.of.Household,Electricity))
 ggpairs(data)
