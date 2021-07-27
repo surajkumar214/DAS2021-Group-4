@@ -55,6 +55,9 @@ Desktop Github:- https://desktop.github.com/
 Team members
 QingZhang, Suraj Kumar, Xin Zhang, Xinyue Shu, Yao Xiao
 
-
+File description 
+group_04.rmd :- rmd file
+group_o4.md  :- knitted rmd file
+group_04_files:- contains all plots 
 
 
